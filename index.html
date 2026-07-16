@@ -288,7 +288,7 @@ textarea.form-textarea{resize:vertical;min-height:65px}
   border-top:1px solid var(--border);
   padding:8px 0 max(8px, env(safe-area-inset-bottom));
   z-index:90;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(6,1fr);
 }
 .bottom-nav-item{
   display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -334,6 +334,49 @@ textarea.form-textarea{resize:vertical;min-height:65px}
   .modal-overlay.open{align-items:flex-end}
 }
 @media(max-width:1100px){.week-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* ── ERNÄHRUNG ── */
+.ern-day-nav{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.ern-day-label{font-size:15px;font-weight:600;flex:1;text-align:center;letter-spacing:-.01em}
+.macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;max-width:700px}
+.macro-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.macro-label{font-family:var(--mono);font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.macro-val{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.macro-goal{font-size:11px;color:var(--text2);margin-top:2px}
+.macro-bar-wrap{height:4px;background:var(--bg3);border-radius:2px;margin-top:8px;overflow:hidden}
+.macro-bar{height:100%;border-radius:2px;transition:width .4s}
+.meal-section{margin-bottom:20px;max-width:700px}
+.meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.meal-title{font-size:13px;font-weight:600;letter-spacing:.02em}
+.meal-kcal{font-family:var(--mono);font-size:11px;color:var(--text2)}
+.meal-items{display:grid;gap:6px}
+.food-item{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:10px 14px;display:flex;align-items:center;gap:10px;transition:border-color .12s}
+.food-item:hover{border-color:var(--border2)}
+.food-name{flex:1;font-size:13px;font-weight:500;min-width:0}
+.food-macros{font-family:var(--mono);font-size:10px;color:var(--text2);flex-shrink:0;text-align:right;line-height:1.6}
+.food-del{background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;padding:2px 4px;opacity:0;transition:opacity .12s}
+.food-item:hover .food-del{opacity:1}
+.food-del:hover{color:var(--red)}
+.add-food-btn{display:flex;align-items:center;gap:8px;padding:9px 14px;border:1px dashed var(--border2);
+  border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-size:12px;font-family:var(--sans);
+  background:none;transition:all .15s;width:100%}
+.add-food-btn:hover{color:var(--text0);border-color:var(--border)}
+.search-result-item{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s}
+.search-result-item:hover{background:var(--bg2)}
+.search-result-item:last-child{border-bottom:none}
+.search-result-name{font-size:13px;font-weight:500}
+.search-result-meta{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px}
+.ern-modal{background:var(--bg1);border:1px solid var(--border2);border-radius:14px;
+  padding:24px;width:440px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.search-results-box{background:var(--bg0);border:1px solid var(--border);border-radius:var(--radius-sm);
+  max-height:220px;overflow-y:auto;margin-top:4px}
+.ai-box{background:linear-gradient(135deg,rgba(124,106,255,.08),rgba(52,211,153,.05));
+  border:1px solid rgba(124,106,255,.2);border-radius:var(--radius);padding:16px 18px;
+  margin-bottom:20px;max-width:700px}
+.ai-box-title{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-box-text{font-size:13px;color:var(--text1);line-height:1.6;white-space:pre-wrap}
+@media(max-width:768px){.macro-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -367,6 +410,10 @@ textarea.form-textarea{resize:vertical;min-height:65px}
     <span class="bottom-nav-icon">⊞</span>
     <span>Habits</span>
   </button>
+  <button class="bottom-nav-item" onclick="showView('ernaehrung')" id="bnav-ernaehrung">
+    <span class="bottom-nav-icon">🥗</span>
+    <span>Essen</span>
+  </button>
 </nav>
 
 <div class="layout">
@@ -395,6 +442,10 @@ textarea.form-textarea{resize:vertical;min-height:65px}
     <div class="nav-section">Aufgaben</div>
     <div class="nav-item" onclick="showView('todos')" id="nav-todos">
       <span class="nav-icon">☑</span> To-Dos &amp; Termine
+    </div>
+    <div class="nav-section">Gesundheit</div>
+    <div class="nav-item" onclick="showView('ernaehrung')" id="nav-ernaehrung">
+      <span class="nav-icon">🥗</span> Ernährung
     </div>
   </nav>
   <div class="sidebar-footer">
@@ -546,6 +597,125 @@ textarea.form-textarea{resize:vertical;min-height:65px}
     <button class="btn btn-primary" onclick="openHabitModal()">+ Habit</button>
   </div>
   <div class="manage-list" id="habits-manage-list"></div>
+</div>
+
+
+<!-- ── ERNÄHRUNG ── -->
+<div class="view" id="view-ernaehrung">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Ernährung</div>
+      <div class="page-subtitle" id="ern-subtitle">Mahlzeiten & Nährstoffe</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="openAiAdvice()" id="ai-btn">✦ KI-Tipp</button>
+      <button class="btn btn-primary" onclick="openFoodModal(null)">+ Lebensmittel</button>
+    </div>
+  </div>
+
+  <!-- Day nav -->
+  <div class="ern-day-nav">
+    <button class="btn-icon" onclick="ernChangeDay(-1)">←</button>
+    <span class="ern-day-label" id="ern-day-label">Heute</span>
+    <button class="btn-icon" onclick="ernChangeDay(1)">→</button>
+  </div>
+
+  <!-- AI advice box -->
+  <div class="ai-box" id="ai-advice-box" style="display:none">
+    <div class="ai-box-title">✦ KI-Empfehlung</div>
+    <div class="ai-box-text" id="ai-advice-text"></div>
+  </div>
+
+  <!-- Macro overview -->
+  <div class="macro-grid" id="macro-grid"></div>
+
+  <!-- Meals -->
+  <div id="meals-container"></div>
+</div>
+
+<!-- ── FOOD MODAL ── -->
+<div class="modal-overlay" id="food-modal" onclick="handleOverlay(event,'food-modal')">
+  <div class="ern-modal">
+    <div class="modal-title" id="food-modal-title">Lebensmittel hinzufügen</div>
+    <input type="hidden" id="fm-meal">
+
+    <div class="form-group">
+      <label class="form-label">Suche oder Barcode</label>
+      <div style="display:flex;gap:8px">
+        <input class="form-input" id="fm-search" placeholder="Produktname eingeben..." autocomplete="off"
+          oninput="searchFood(this.value)" style="flex:1">
+        <button class="btn btn-ghost" onclick="openBarcodeScanner()" title="Barcode scannen" style="padding:8px 12px;flex-shrink:0">📷</button>
+      </div>
+      <div class="search-results-box" id="search-results" style="display:none"></div>
+    </div>
+
+    <div id="selected-food-info" style="display:none">
+      <div style="background:var(--bg2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px" id="sel-food-name"></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2)" id="sel-food-macros"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Menge</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="form-input" id="fm-amount" type="number" value="100" min="1" style="flex:1"
+            oninput="updateFoodCalc()">
+          <select class="form-select" id="fm-unit" style="width:90px" onchange="updateFoodCalc()">
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+            <option value="stk">Stück</option>
+            <option value="portion">Portion</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:12px" id="food-calc-preview"></div>
+    </div>
+
+    <!-- Manual entry -->
+    <div id="manual-entry" style="display:none">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;font-family:var(--mono)">Manuell eingeben:</div>
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input class="form-input" id="fm-manual-name" placeholder="z.B. Hähnchenbrust">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="form-group">
+          <label class="form-label">Kalorien (kcal)</label>
+          <input class="form-input" id="fm-kcal" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Protein (g)</label>
+          <input class="form-input" id="fm-protein" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kohlenhydrate (g)</label>
+          <input class="form-input" id="fm-carbs" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fett (g)</label>
+          <input class="form-input" id="fm-fat" type="number" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" onclick="toggleManualEntry()" style="font-size:11px;margin-bottom:12px">
+      ✎ Manuell eingeben
+    </button>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('food-modal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveFood()">Hinzufügen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── BARCODE SCANNER ── -->
+<div class="modal-overlay" id="scanner-modal" onclick="handleOverlay(event,'scanner-modal')">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div class="modal-title">Barcode scannen</div>
+    <video id="scanner-video" style="width:100%;border-radius:8px;background:#000;margin-bottom:12px" autoplay playsinline></video>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px" id="scanner-status">Kamera wird gestartet...</div>
+    <button class="btn btn-ghost" onclick="stopScanner()">Abbrechen</button>
+  </div>
 </div>
 
 </main>
@@ -759,7 +929,7 @@ function getStreak(hid){let n=0;const d=new Date();while(true){if(isLogged(hid,f
 // ── VIEW SWITCH ───────────────────────────────────────────
 const VIEW_LABELS = {
   heute:'Heute', monat:'Monatsraster', workout:'Workout',
-  todos:'To-Dos & Termine', habits:'Habits'
+  todos:'To-Dos & Termine', habits:'Habits', ernaehrung:'Ernährung'
 };
 
 function showView(name){
@@ -776,11 +946,12 @@ function showView(name){
   if(mht) mht.textContent = VIEW_LABELS[name]||name;
   // Scroll to top
   document.querySelector('.main').scrollTop = 0;
-  if(name==='heute')  renderHeute();
-  if(name==='monat')  renderTable();
-  if(name==='workout')renderWorkout();
-  if(name==='todos')  renderTodos();
-  if(name==='habits') renderManage();
+  if(name==='heute')      renderHeute();
+  if(name==='monat')      renderTable();
+  if(name==='workout')    renderWorkout();
+  if(name==='todos')      renderTodos();
+  if(name==='habits')     renderManage();
+  if(name==='ernaehrung') renderErnaehrung();
 }
 
 // ── HEUTE ─────────────────────────────────────────────────
@@ -1430,6 +1601,370 @@ function save(){
   localStorage.setItem('ht3_plans',  JSON.stringify(S.plans));
   localStorage.setItem('ht3_activePlan', S.activePlanId||'');
   if(supabaseReady) debouncedSync();
+}
+
+
+// ── ERNÄHRUNG ─────────────────────────────────────────────
+const MEALS = ['Frühstück','Mittagessen','Abendessen','Snacks'];
+const MEAL_ICONS = ['☀️','🌤️','🌙','🍎'];
+
+// Goals (clean bulk)
+const GOALS = { kcal: 3700, protein: 180, carbs: 400, fat: 110 };
+
+let ernDate = todayStr();
+let selectedFoodData = null;
+let scannerStream = null;
+let searchTimeout = null;
+
+// Storage key for nutrition
+function ernKey(ds){ return 'ern_' + ds; }
+
+function loadErnDay(ds){
+  const raw = localStorage.getItem(ernKey(ds));
+  if(raw) return JSON.parse(raw);
+  // default empty structure
+  return { meals: { 'Frühstück':[], 'Mittagessen':[], 'Abendessen':[], 'Snacks':[] } };
+}
+function saveErnDay(ds, data){
+  localStorage.setItem(ernKey(ds), JSON.stringify(data));
+  if(supabaseReady) syncErnToSupabase(ds, data);
+}
+async function syncErnToSupabase(ds, data){
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/tracker_nutrition`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,
+        'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'resolution=merge-duplicates'},
+      body: JSON.stringify({user_id: SYNC_USER_ID, date: ds, data: JSON.stringify(data)})
+    });
+  } catch(e){}
+}
+
+function ernChangeDay(delta){
+  const d = new Date(ernDate + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  ernDate = fmtDate(d);
+  renderErnaehrung();
+}
+
+function renderErnaehrung(){
+  const data = loadErnDay(ernDate);
+  const ts = todayStr();
+  const isToday = ernDate === ts;
+  const d = new Date(ernDate + 'T00:00:00');
+  const label = isToday ? 'Heute' :
+    ernDate === fmtDate(new Date(new Date().setDate(new Date().getDate()-1))) ? 'Gestern' :
+    DOW_L[d.getDay()] + ', ' + d.getDate() + '. ' + MONTHS[d.getMonth()];
+  document.getElementById('ern-day-label').textContent = label;
+
+  // Totals
+  let totKcal=0, totProt=0, totCarbs=0, totFat=0;
+  MEALS.forEach(m => {
+    (data.meals[m]||[]).forEach(f => {
+      totKcal  += f.kcal  ||0;
+      totProt  += f.protein||0;
+      totCarbs += f.carbs ||0;
+      totFat   += f.fat   ||0;
+    });
+  });
+
+  // Macro cards
+  const macros = [
+    {label:'Kalorien', val:Math.round(totKcal), unit:'kcal', goal:GOALS.kcal, color:'var(--accent)'},
+    {label:'Protein',  val:Math.round(totProt), unit:'g',    goal:GOALS.protein, color:'var(--green)'},
+    {label:'Carbs',    val:Math.round(totCarbs),unit:'g',    goal:GOALS.carbs,   color:'var(--amber)'},
+    {label:'Fett',     val:Math.round(totFat),  unit:'g',    goal:GOALS.fat,     color:'var(--orange)'},
+  ];
+  const mg = document.getElementById('macro-grid');
+  mg.innerHTML = '';
+  macros.forEach(m => {
+    const pct = Math.min(100, Math.round(m.val/m.goal*100));
+    const over = m.val > m.goal;
+    const div = document.createElement('div');
+    div.className = 'macro-card';
+    div.innerHTML = `
+      <div class="macro-label">${m.label}</div>
+      <div class="macro-val" style="color:${over?'var(--red)':m.color}">${m.val}</div>
+      <div class="macro-goal">${m.unit} · Ziel: ${m.goal}</div>
+      <div class="macro-bar-wrap"><div class="macro-bar" style="width:${pct}%;background:${over?'var(--red)':m.color}"></div></div>`;
+    mg.appendChild(div);
+  });
+
+  // Meals
+  const mc = document.getElementById('meals-container');
+  mc.innerHTML = '';
+  MEALS.forEach((meal, mi) => {
+    const items = data.meals[meal] || [];
+    const mKcal = items.reduce((s,f)=>s+(f.kcal||0),0);
+    const sec = document.createElement('div');
+    sec.className = 'meal-section';
+    sec.innerHTML = `
+      <div class="meal-header">
+        <span class="meal-title">${MEAL_ICONS[mi]} ${meal}</span>
+        <span class="meal-kcal">${Math.round(mKcal)} kcal</span>
+      </div>
+      <div class="meal-items" id="meal-items-${mi}"></div>
+      <button class="add-food-btn" onclick="openFoodModal('${meal}')">+ Lebensmittel hinzufügen</button>`;
+    mc.appendChild(sec);
+
+    const il = sec.querySelector('#meal-items-'+mi);
+    items.forEach((f, fi) => {
+      const div = document.createElement('div');
+      div.className = 'food-item';
+      div.innerHTML = `
+        <div class="food-name">${f.name} <span style="font-size:11px;color:var(--text2)">${f.amount}${f.unit||'g'}</span></div>
+        <div class="food-macros">${Math.round(f.kcal||0)} kcal<br>${Math.round(f.protein||0)}P · ${Math.round(f.carbs||0)}C · ${Math.round(f.fat||0)}F</div>
+        <button class="food-del" onclick="deleteFoodItem('${meal}',${fi})">✕</button>`;
+      il.appendChild(div);
+    });
+  });
+}
+
+function deleteFoodItem(meal, idx){
+  const data = loadErnDay(ernDate);
+  data.meals[meal].splice(idx, 1);
+  saveErnDay(ernDate, data);
+  renderErnaehrung();
+}
+
+// ── FOOD MODAL ────────────────────────────────────────────
+function openFoodModal(meal){
+  document.getElementById('fm-meal').value = meal || 'Frühstück';
+  document.getElementById('food-modal-title').textContent =
+    meal ? 'Zu ' + meal + ' hinzufügen' : 'Lebensmittel hinzufügen';
+  document.getElementById('fm-search').value = '';
+  document.getElementById('search-results').style.display = 'none';
+  document.getElementById('search-results').innerHTML = '';
+  document.getElementById('selected-food-info').style.display = 'none';
+  document.getElementById('manual-entry').style.display = 'none';
+  document.getElementById('fm-amount').value = '100';
+  document.getElementById('fm-unit').value = 'g';
+  selectedFoodData = null;
+  document.getElementById('food-modal').classList.add('open');
+  setTimeout(() => document.getElementById('fm-search').focus(), 80);
+}
+
+function toggleManualEntry(){
+  const el = document.getElementById('manual-entry');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── FOOD SEARCH (OpenFoodFacts) ────────────────────────────
+function searchFood(q){
+  clearTimeout(searchTimeout);
+  const box = document.getElementById('search-results');
+  if(!q || q.length < 2){ box.style.display='none'; return; }
+  searchTimeout = setTimeout(async () => {
+    box.style.display = 'block';
+    box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text2);font-family:var(--mono)">Suche...</div>';
+    try {
+      const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=de`;
+      const r = await fetch(url);
+      const d = await r.json();
+      const products = (d.products||[]).filter(p => p.product_name && p.nutriments);
+      if(!products.length){
+        box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text2)">Keine Ergebnisse. Manuell eingeben?</div>';
+        return;
+      }
+      box.innerHTML = '';
+      products.forEach(p => {
+        const n = p.nutriments;
+        const kcal = Math.round(n['energy-kcal_100g'] || n['energy-kcal'] || (n['energy_100g']||0)/4.184 || 0);
+        const prot = Math.round((n['proteins_100g']||0)*10)/10;
+        const carb = Math.round((n['carbohydrates_100g']||0)*10)/10;
+        const fat  = Math.round((n['fat_100g']||0)*10)/10;
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `<div class="search-result-name">${p.product_name}${p.brands?' · <span style="color:var(--text2)">' + p.brands + '</span>':''}</div>
+          <div class="search-result-meta">${kcal} kcal · ${prot}g P · ${carb}g C · ${fat}g F (pro 100g)</div>`;
+        item.onclick = () => selectFood({name: p.product_name, kcal100: kcal, protein100: prot, carbs100: carb, fat100: fat});
+        box.appendChild(item);
+      });
+    } catch(e){
+      box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--red)">Fehler bei der Suche.</div>';
+    }
+  }, 400);
+}
+
+function selectFood(food){
+  selectedFoodData = food;
+  document.getElementById('selected-food-info').style.display = 'block';
+  document.getElementById('search-results').style.display = 'none';
+  document.getElementById('sel-food-name').textContent = food.name;
+  document.getElementById('sel-food-macros').textContent =
+    `${food.kcal100} kcal · ${food.protein100}g P · ${food.carbs100}g C · ${food.fat100}g F (pro 100g)`;
+  document.getElementById('fm-search').value = food.name;
+  updateFoodCalc();
+}
+
+function updateFoodCalc(){
+  if(!selectedFoodData) return;
+  const amount = parseFloat(document.getElementById('fm-amount').value)||100;
+  const unit = document.getElementById('fm-unit').value;
+  const factor = (unit==='stk'||unit==='portion') ? 1 : amount/100;
+  const kcal = Math.round(selectedFoodData.kcal100 * factor);
+  const prot = Math.round(selectedFoodData.protein100 * factor * 10)/10;
+  const carb = Math.round(selectedFoodData.carbs100 * factor * 10)/10;
+  const fat  = Math.round(selectedFoodData.fat100 * factor * 10)/10;
+  document.getElementById('food-calc-preview').textContent =
+    `→ ${kcal} kcal · ${prot}g Protein · ${carb}g Carbs · ${fat}g Fett`;
+}
+
+function saveFood(){
+  const meal = document.getElementById('fm-meal').value;
+  const data = loadErnDay(ernDate);
+  if(!data.meals[meal]) data.meals[meal] = [];
+
+  // Manual entry?
+  const manualName = document.getElementById('fm-manual-name').value.trim();
+  if(manualName){
+    data.meals[meal].push({
+      name: manualName,
+      amount: 1, unit: 'Portion',
+      kcal:    parseFloat(document.getElementById('fm-kcal').value)||0,
+      protein: parseFloat(document.getElementById('fm-protein').value)||0,
+      carbs:   parseFloat(document.getElementById('fm-carbs').value)||0,
+      fat:     parseFloat(document.getElementById('fm-fat').value)||0,
+    });
+    saveErnDay(ernDate, data);
+    closeModal('food-modal');
+    renderErnaehrung();
+    return;
+  }
+
+  if(!selectedFoodData){ document.getElementById('fm-search').focus(); return; }
+
+  const amount = parseFloat(document.getElementById('fm-amount').value)||100;
+  const unit   = document.getElementById('fm-unit').value;
+  const factor = (unit==='stk'||unit==='portion') ? 1 : amount/100;
+
+  data.meals[meal].push({
+    name: selectedFoodData.name,
+    amount, unit,
+    kcal:    Math.round(selectedFoodData.kcal100 * factor),
+    protein: Math.round(selectedFoodData.protein100 * factor * 10)/10,
+    carbs:   Math.round(selectedFoodData.carbs100 * factor * 10)/10,
+    fat:     Math.round(selectedFoodData.fat100 * factor * 10)/10,
+  });
+  saveErnDay(ernDate, data);
+  closeModal('food-modal');
+  renderErnaehrung();
+}
+
+// ── BARCODE SCANNER ───────────────────────────────────────
+async function openBarcodeScanner(){
+  document.getElementById('scanner-modal').classList.add('open');
+  try {
+    scannerStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const video = document.getElementById('scanner-video');
+    video.srcObject = scannerStream;
+    document.getElementById('scanner-status').textContent = 'Barcode vor die Kamera halten...';
+    // Use BarcodeDetector if available
+    if('BarcodeDetector' in window){
+      const bd = new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','qr_code']});
+      const scan = async () => {
+        if(!scannerStream) return;
+        try {
+          const codes = await bd.detect(video);
+          if(codes.length > 0){
+            const barcode = codes[0].rawValue;
+            stopScanner();
+            lookupBarcode(barcode);
+            return;
+          }
+        } catch(e){}
+        requestAnimationFrame(scan);
+      };
+      video.onloadedmetadata = () => scan();
+    } else {
+      document.getElementById('scanner-status').textContent =
+        'Barcode-Erkennung nicht unterstützt. Bitte manuell suchen.';
+    }
+  } catch(e){
+    document.getElementById('scanner-status').textContent = 'Kamera-Zugriff verweigert.';
+  }
+}
+
+function stopScanner(){
+  if(scannerStream){ scannerStream.getTracks().forEach(t=>t.stop()); scannerStream=null; }
+  closeModal('scanner-modal');
+}
+
+async function lookupBarcode(barcode){
+  document.getElementById('fm-search').value = 'Suche Barcode ' + barcode + '...';
+  try {
+    const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    const d = await r.json();
+    if(d.status===1 && d.product){
+      const p = d.product; const n = p.nutriments;
+      const kcal = Math.round(n['energy-kcal_100g']||n['energy-kcal']||(n['energy_100g']||0)/4.184||0);
+      selectFood({
+        name: p.product_name || 'Unbekanntes Produkt',
+        kcal100: kcal,
+        protein100: Math.round((n['proteins_100g']||0)*10)/10,
+        carbs100:   Math.round((n['carbohydrates_100g']||0)*10)/10,
+        fat100:     Math.round((n['fat_100g']||0)*10)/10,
+      });
+      document.getElementById('food-modal').classList.add('open');
+    } else {
+      document.getElementById('fm-search').value = '';
+      alert('Produkt nicht gefunden. Bitte manuell eingeben.');
+    }
+  } catch(e){
+    document.getElementById('fm-search').value = '';
+  }
+}
+
+// ── KI TIPP ───────────────────────────────────────────────
+async function openAiAdvice(){
+  const btn = document.getElementById('ai-btn');
+  const box = document.getElementById('ai-advice-box');
+  const txt = document.getElementById('ai-advice-text');
+  btn.textContent = '⏳ Laden...';
+  btn.disabled = true;
+  box.style.display = 'block';
+  txt.textContent = 'KI analysiert deine heutige Ernährung...';
+
+  const data = loadErnDay(ernDate);
+  let totKcal=0, totProt=0, totCarbs=0, totFat=0;
+  const allFoods = [];
+  MEALS.forEach(m => {
+    (data.meals[m]||[]).forEach(f => {
+      totKcal  += f.kcal  ||0;
+      totProt  += f.protein||0;
+      totCarbs += f.carbs ||0;
+      totFat   += f.fat   ||0;
+      allFoods.push(f.name);
+    });
+  });
+
+  const prompt = `Du bist ein Ernährungsberater für einen 18-jährigen Gymnasiasten (Jannick) der einen Clean Bulk macht.
+Tagesziele: ${GOALS.kcal} kcal, ${GOALS.protein}g Protein, ${GOALS.carbs}g Carbs, ${GOALS.fat}g Fett.
+Bisher heute gegessen: ${allFoods.join(', ') || 'noch nichts'}.
+Aktuelle Makros: ${Math.round(totKcal)} kcal, ${Math.round(totProt)}g Protein, ${Math.round(totCarbs)}g Carbs, ${Math.round(totFat)}g Fett.
+Gib kurze, konkrete Empfehlungen (max 5 Sätze):
+1. Was fehlt noch (Makros)?
+2. Was sollte er heute noch essen?
+3. Was sollte er vermeiden?
+Antworte auf Deutsch, direkt und ohne Floskeln.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:400,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const d = await res.json();
+    txt.textContent = d.content?.[0]?.text || 'Keine Antwort erhalten.';
+  } catch(e){
+    txt.textContent = 'Fehler beim Laden der KI-Empfehlung.';
+  }
+  btn.textContent = '✦ KI-Tipp';
+  btn.disabled = false;
 }
 
 // ── INIT ─────────────────────────────────────────────────
