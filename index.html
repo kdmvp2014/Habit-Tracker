@@ -670,35 +670,40 @@ textarea.form-textarea{resize:vertical;min-height:65px}
       <div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:12px" id="food-calc-preview"></div>
     </div>
 
-    <!-- Manual entry -->
+    <!-- Manual entry / eigenes Lebensmittel anlegen -->
     <div id="manual-entry" style="display:none">
-      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;font-family:var(--mono)">Manuell eingeben:</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;font-family:var(--mono)">Neues Lebensmittel anlegen (Werte pro 100g):</div>
       <div class="form-group">
         <label class="form-label">Name</label>
         <input class="form-input" id="fm-manual-name" placeholder="z.B. Hähnchenbrust">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <div class="form-group">
-          <label class="form-label">Kalorien (kcal)</label>
+          <label class="form-label">Kalorien (kcal) / 100g</label>
           <input class="form-input" id="fm-kcal" type="number" placeholder="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Protein (g)</label>
+          <label class="form-label">Protein (g) / 100g</label>
           <input class="form-input" id="fm-protein" type="number" placeholder="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Kohlenhydrate (g)</label>
+          <label class="form-label">Kohlenhydrate (g) / 100g</label>
           <input class="form-input" id="fm-carbs" type="number" placeholder="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Fett (g)</label>
+          <label class="form-label">Fett (g) / 100g</label>
           <input class="form-input" id="fm-fat" type="number" placeholder="0">
         </div>
       </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);margin-bottom:12px;cursor:pointer">
+        <input type="checkbox" id="fm-save-custom" checked>
+        Für später speichern
+      </label>
+      <button class="btn btn-ghost" onclick="applyManualFood()" style="width:100%;margin-bottom:12px">Übernehmen</button>
     </div>
 
     <button class="btn btn-ghost" onclick="toggleManualEntry()" style="font-size:11px;margin-bottom:12px">
-      ✎ Manuell eingeben
+      ✎ Neues Lebensmittel anlegen
     </button>
 
     <div class="modal-actions">
@@ -863,6 +868,7 @@ let S = {
   logs:    {},  // {"YYYY-MM-DD":{hid:bool}}
   todos:   [],  // {id,title,note,date,cat,prio,done}
   plans:   [],  // {id,name,days:[{exercises:[{name,sets,note,done}]}×7]}  days[0]=Mo
+  customFoods: [], // {id,name,kcal100,protein100,carbs100,fat100}
   activePlanId: null,
   viewMonth: null,
   editingHabitId: null,
@@ -879,6 +885,7 @@ function save(){
   localStorage.setItem('ht3_logs',   JSON.stringify(S.logs));
   localStorage.setItem('ht3_todos',  JSON.stringify(S.todos));
   localStorage.setItem('ht3_plans',  JSON.stringify(S.plans));
+  localStorage.setItem('ht3_customfoods', JSON.stringify(S.customFoods));
   localStorage.setItem('ht3_activePlan', S.activePlanId||'');
 }
 function load(){
@@ -890,6 +897,7 @@ function load(){
   S.logs   = tryOld('ht3_logs',  'ht2_logs')   || {};
   S.todos  = tryOld('ht3_todos', 'ht2_todos')  || [];
   S.plans  = JSON.parse(localStorage.getItem('ht3_plans')||'[]');
+  S.customFoods = JSON.parse(localStorage.getItem('ht3_customfoods')||'[]');
   S.activePlanId = localStorage.getItem('ht3_activePlan')||null;
   if(!S.activePlanId && S.plans.length) S.activePlanId = S.plans[0].id;
 }
@@ -1528,6 +1536,7 @@ async function syncToSupabase(){
       logs:       JSON.stringify(S.logs),
       todos:      JSON.stringify(S.todos),
       plans:      JSON.stringify(S.plans),
+      custom_foods: JSON.stringify(S.customFoods),
       active_plan: S.activePlanId||'',
       updated_at: new Date().toISOString()
     };
@@ -1566,6 +1575,7 @@ async function loadFromSupabase(){
     if(row.logs)        S.logs        = JSON.parse(row.logs);
     if(row.todos)       S.todos       = JSON.parse(row.todos);
     if(row.plans)       S.plans       = JSON.parse(row.plans);
+    if(row.custom_foods) S.customFoods = JSON.parse(row.custom_foods);
     if(row.active_plan) S.activePlanId= row.active_plan;
     save(); // auch in localStorage spiegeln
     return 'ok';
@@ -1602,6 +1612,7 @@ function save(){
   localStorage.setItem('ht3_logs',   JSON.stringify(S.logs));
   localStorage.setItem('ht3_todos',  JSON.stringify(S.todos));
   localStorage.setItem('ht3_plans',  JSON.stringify(S.plans));
+  localStorage.setItem('ht3_customfoods', JSON.stringify(S.customFoods));
   localStorage.setItem('ht3_activePlan', S.activePlanId||'');
   if(supabaseReady) debouncedSync();
 }
@@ -1740,6 +1751,12 @@ function openFoodModal(meal){
   document.getElementById('search-results').innerHTML = '';
   document.getElementById('selected-food-info').style.display = 'none';
   document.getElementById('manual-entry').style.display = 'none';
+  document.getElementById('fm-manual-name').value = '';
+  document.getElementById('fm-kcal').value = '';
+  document.getElementById('fm-protein').value = '';
+  document.getElementById('fm-carbs').value = '';
+  document.getElementById('fm-fat').value = '';
+  document.getElementById('fm-save-custom').checked = true;
   document.getElementById('fm-amount').value = '100';
   document.getElementById('fm-unit').value = 'g';
   selectedFoodData = null;
@@ -1752,24 +1769,70 @@ function toggleManualEntry(){
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
+// ── EIGENE LEBENSMITTEL ─────────────────────────────────────
+function upsertCustomFood(food){
+  const existing = S.customFoods.find(f => f.name.toLowerCase() === food.name.toLowerCase());
+  if(existing){
+    Object.assign(existing, food);
+  } else {
+    S.customFoods.push({ id: Date.now().toString(), ...food });
+  }
+  save();
+}
+function deleteCustomFood(id){
+  S.customFoods = S.customFoods.filter(f => f.id !== id);
+  save();
+}
+
 // ── FOOD SEARCH (OpenFoodFacts) ────────────────────────────
+function renderCustomFoodResults(box, q){
+  box.innerHTML = '';
+  const ql = q.toLowerCase();
+  S.customFoods.filter(f => f.name.toLowerCase().includes(ql)).forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px';
+    const info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0';
+    info.innerHTML = `<div class="search-result-name">🧺 ${f.name}</div>
+      <div class="search-result-meta">${f.kcal100} kcal · ${f.protein100}g P · ${f.carbs100}g C · ${f.fat100}g F (pro 100g)</div>`;
+    info.onclick = () => selectFood({name: f.name, kcal100: f.kcal100, protein100: f.protein100, carbs100: f.carbs100, fat100: f.fat100});
+    const del = document.createElement('button');
+    del.className = 'btn-icon';
+    del.textContent = '✕';
+    del.title = 'Eigenes Lebensmittel löschen';
+    del.style.flexShrink = '0';
+    del.onclick = (e) => { e.stopPropagation(); deleteCustomFood(f.id); renderCustomFoodResults(box, q); };
+    item.appendChild(info);
+    item.appendChild(del);
+    box.appendChild(item);
+  });
+}
+
 function searchFood(q){
   clearTimeout(searchTimeout);
   const box = document.getElementById('search-results');
   if(!q || q.length < 2){ box.style.display='none'; return; }
+  box.style.display = 'block';
+  renderCustomFoodResults(box, q);
   searchTimeout = setTimeout(async () => {
-    box.style.display = 'block';
-    box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text2);font-family:var(--mono)">Suche...</div>';
+    const loading = document.createElement('div');
+    loading.id = 'search-loading';
+    loading.style.cssText = 'padding:12px;font-size:12px;color:var(--text2);font-family:var(--mono)';
+    loading.textContent = 'Suche...';
+    box.appendChild(loading);
     try {
       const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=de`;
       const r = await fetch(url);
       const d = await r.json();
       const products = (d.products||[]).filter(p => p.product_name && p.nutriments);
+      document.getElementById('search-loading')?.remove();
       if(!products.length){
-        box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text2)">Keine Ergebnisse. Manuell eingeben?</div>';
+        if(!box.children.length){
+          box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text2)">Keine Ergebnisse. Manuell eingeben?</div>';
+        }
         return;
       }
-      box.innerHTML = '';
       products.forEach(p => {
         const n = p.nutriments;
         const kcal = Math.round(n['energy-kcal_100g'] || n['energy-kcal'] || (n['energy_100g']||0)/4.184 || 0);
@@ -1784,7 +1847,11 @@ function searchFood(q){
         box.appendChild(item);
       });
     } catch(e){
-      box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--red)">Fehler bei der Suche.</div>';
+      document.getElementById('search-loading')?.remove();
+      const err = document.createElement('div');
+      err.style.cssText = 'padding:12px;font-size:12px;color:var(--red)';
+      err.textContent = 'Fehler bei der Suche.';
+      box.appendChild(err);
     }
   }, 400);
 }
@@ -1813,27 +1880,27 @@ function updateFoodCalc(){
     `→ ${kcal} kcal · ${prot}g Protein · ${carb}g Carbs · ${fat}g Fett`;
 }
 
+// Baut aus den manuellen pro-100g-Feldern ein Food-Objekt, speichert es optional
+// dauerhaft und übergibt es an die normale Mengen-/Einheiten-Auswahl.
+function applyManualFood(){
+  const name = document.getElementById('fm-manual-name').value.trim();
+  if(!name){ document.getElementById('fm-manual-name').focus(); return; }
+  const food = {
+    name,
+    kcal100:    parseFloat(document.getElementById('fm-kcal').value)||0,
+    protein100: parseFloat(document.getElementById('fm-protein').value)||0,
+    carbs100:   parseFloat(document.getElementById('fm-carbs').value)||0,
+    fat100:     parseFloat(document.getElementById('fm-fat').value)||0,
+  };
+  if(document.getElementById('fm-save-custom').checked) upsertCustomFood(food);
+  selectFood(food);
+  document.getElementById('manual-entry').style.display = 'none';
+}
+
 function saveFood(){
   const meal = document.getElementById('fm-meal').value;
   const data = loadErnDay(ernDate);
   if(!data.meals[meal]) data.meals[meal] = [];
-
-  // Manual entry?
-  const manualName = document.getElementById('fm-manual-name').value.trim();
-  if(manualName){
-    data.meals[meal].push({
-      name: manualName,
-      amount: 1, unit: 'Portion',
-      kcal:    parseFloat(document.getElementById('fm-kcal').value)||0,
-      protein: parseFloat(document.getElementById('fm-protein').value)||0,
-      carbs:   parseFloat(document.getElementById('fm-carbs').value)||0,
-      fat:     parseFloat(document.getElementById('fm-fat').value)||0,
-    });
-    saveErnDay(ernDate, data);
-    closeModal('food-modal');
-    renderErnaehrung();
-    return;
-  }
 
   if(!selectedFoodData){ document.getElementById('fm-search').focus(); return; }
 
