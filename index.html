@@ -1550,16 +1550,17 @@ async function syncToSupabase(){
   } catch(e){ updateSyncIndicator(false); }
 }
 
+// Rückgabe: 'ok' (Daten geladen), 'empty' (kein Fehler, nur noch keine Zeile), 'error' (echter Fehler)
 async function loadFromSupabase(){
-  if(!supabaseReady) return false;
+  if(!supabaseReady) return 'error';
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/tracker_data?user_id=eq.${SYNC_USER_ID}&select=*`,
       { headers:{ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY } }
     );
-    if(!res.ok) return false;
+    if(!res.ok) return 'error';
     const data = await res.json();
-    if(!data.length) return false;
+    if(!data.length) return 'empty';
     const row = data[0];
     if(row.habits)      S.habits      = JSON.parse(row.habits);
     if(row.logs)        S.logs        = JSON.parse(row.logs);
@@ -1567,8 +1568,8 @@ async function loadFromSupabase(){
     if(row.plans)       S.plans       = JSON.parse(row.plans);
     if(row.active_plan) S.activePlanId= row.active_plan;
     save(); // auch in localStorage spiegeln
-    return true;
-  } catch(e){ return false; }
+    return 'ok';
+  } catch(e){ return 'error'; }
 }
 
 // Debounced sync — speichert 2 Sek nach letzter Änderung
@@ -1578,12 +1579,14 @@ function debouncedSync(){
 }
 
 // Sync-Indikator in der Sidebar
-function updateSyncIndicator(ok){
+function updateSyncIndicator(state){
   const el = document.getElementById('sync-indicator');
   if(!el) return;
   if(!supabaseReady){
     el.innerHTML='<span style="color:var(--text2)">○ lokal</span>';
-  } else if(ok){
+  } else if(state==='pending'){
+    el.innerHTML='<span style="color:var(--text2)">⏳ verbinde…</span>';
+  } else if(state===true){
     const t = lastSyncTime ? lastSyncTime.toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'}) : '';
     el.innerHTML=`<span style="color:var(--green)">✓ sync ${t}</span>`;
   } else {
@@ -1988,13 +1991,21 @@ async function init(){
   }
 
   renderHeute();
-  updateSyncIndicator(false);
+  updateSyncIndicator('pending');
 
   // Im Hintergrund von Supabase laden (aktuellere Daten)
   if(supabaseReady){
-    updateSyncIndicator(false);
-    const ok = await loadFromSupabase();
-    if(ok){ renderHeute(); updateSyncIndicator(true); }
+    const status = await loadFromSupabase();
+    if(status==='ok'){
+      renderHeute();
+      updateSyncIndicator(true);
+    } else if(status==='empty'){
+      // Keine Cloud-Daten vorhanden ist kein Fehler — direkt einen echten
+      // Schreibtest machen, damit der Indikator den echten Sync-Status zeigt.
+      await syncToSupabase();
+    } else {
+      updateSyncIndicator(false);
+    }
   }
 
   // Service Worker registrieren
