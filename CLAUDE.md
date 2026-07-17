@@ -60,7 +60,7 @@ Repo: GitHub Pages (index.html im Root)
 
 - `Eine Änderung pro Prompt — nicht mehrere Features auf einmal` 
 
-- `Keine externen Abhängigkeiten außer: Google Fonts CDN` 
+- `Keine externen Abhängigkeiten außer: Google Fonts CDN, barcode-detector-Polyfill (jsDelivr, nur bei Bedarf für Browser ohne native Barcode Detection API wie Safari/iOS geladen)` 
 
 - `localStorage-Key-Prefix: ht3_ (habits, logs, todos, plans)` 
 

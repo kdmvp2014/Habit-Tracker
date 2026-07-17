@@ -2004,14 +2004,33 @@ function saveFood(){
 }
 
 // ── BARCODE SCANNER ───────────────────────────────────────
+// Safari (iOS) und Firefox haben keine native Barcode Detection API — Polyfill
+// (ZXing als WebAssembly) wird nur bei Bedarf nachgeladen, sonst kein Extra-Request.
+let _barcodeDetectorPolyfillPromise = null;
+function ensureBarcodeDetectorPolyfill(){
+  if('BarcodeDetector' in window) return Promise.resolve();
+  if(!_barcodeDetectorPolyfillPromise){
+    _barcodeDetectorPolyfillPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://fastly.jsdelivr.net/npm/barcode-detector@3/dist/iife/polyfill.min.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+  return _barcodeDetectorPolyfillPromise;
+}
+
 async function openBarcodeScanner(){
   document.getElementById('scanner-modal').classList.add('open');
+  const polyfillReady = ensureBarcodeDetectorPolyfill().catch(() => {});
   try {
     scannerStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
     const video = document.getElementById('scanner-video');
     video.srcObject = scannerStream;
     document.getElementById('scanner-status').textContent = 'Barcode vor die Kamera halten...';
-    // Use BarcodeDetector if available
+    await polyfillReady;
+    // Use BarcodeDetector if available (nativ oder per Polyfill nachgerüstet)
     if('BarcodeDetector' in window){
       const bd = new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','qr_code']});
       const scan = async () => {
