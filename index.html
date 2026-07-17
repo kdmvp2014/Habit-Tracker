@@ -705,6 +705,9 @@ textarea.form-textarea{resize:vertical;min-height:65px}
     <button class="btn btn-ghost" onclick="toggleManualEntry()" style="font-size:11px;margin-bottom:12px">
       ✎ Neues Lebensmittel anlegen
     </button>
+    <button class="btn btn-ghost" onclick="setUsdaApiKey()" style="font-size:11px;margin-bottom:12px;margin-left:8px">
+      🔑 USDA-Datenbank aktivieren
+    </button>
 
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('food-modal')">Abbrechen</button>
@@ -1525,7 +1528,9 @@ const SYNC_USER_ID = 'jannick'; // fixer User-Key (kein Login nötig)
 
 // ── USDA FOODDATA CENTRAL (generische/rohe Lebensmittel) ────
 // Kostenlosen Key holen: https://fdc.nal.usda.gov/api-key-signup/
-const USDA_API_KEY = ''; // von dir einzutragen
+// Bewusst NICHT hier im Code (öffentliches Repo!) — wird per Button in der App
+// einmalig lokal im Browser gespeichert (localStorage), siehe setUsdaApiKey().
+const USDA_API_KEY = localStorage.getItem('usda_api_key') || '';
 
 let supabaseReady = !!(SUPABASE_URL && SUPABASE_KEY);
 let lastSyncTime  = null;
@@ -1811,6 +1816,17 @@ function renderCustomFoodResults(box, q){
     item.appendChild(del);
     box.appendChild(item);
   });
+}
+
+// Key wird bewusst nicht im (öffentlichen) Repo gespeichert, sondern einmalig lokal
+// im Browser hinterlegt. Ein Seiten-Reload danach lädt USDA_API_KEY neu aus localStorage.
+function setUsdaApiKey(){
+  const current = localStorage.getItem('usda_api_key') || '';
+  const k = prompt('USDA FoodData Central API-Key eingeben (kostenlos: fdc.nal.usda.gov/api-key-signup):', current);
+  if(k === null) return;
+  if(k.trim()) localStorage.setItem('usda_api_key', k.trim());
+  else localStorage.removeItem('usda_api_key');
+  location.reload();
 }
 
 // USDA FoodData Central: kuratierte, nicht popularitätsbasierte Datensätze speziell für
