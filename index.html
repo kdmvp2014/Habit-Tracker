@@ -23,7 +23,51 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>if(localStorage.getItem('ht3_theme')==='light')document.documentElement.classList.add('light');</script>
 <style>
+:root {
+  --ds-bg: #0c0b18;
+  --ds-surface: #181630;
+  --ds-accent: #6758f3;
+  --ds-accent-muted: rgba(103, 88, 243, 0.18);
+  --ds-accent-border: rgba(103, 88, 243, 0.38);
+  --ds-text: #ede9ff;
+  --ds-text-secondary: #8a80cc;
+  --ds-border: rgba(237, 233, 255, 0.08);
+}
+:root.light {
+  --ds-bg: #f8f7ff;
+  --ds-surface: #edeaff;
+  --ds-accent: #6758f3;
+  --ds-accent-muted: rgba(103, 88, 243, 0.12);
+  --ds-accent-border: rgba(103, 88, 243, 0.3);
+  --ds-text: #1e1745;
+  --ds-text-secondary: #8878dd;
+  --ds-border: rgba(30, 23, 69, 0.1);
+}
+/* ── HEUTE-TAB REDESIGN (nur #view-heute, alle anderen Tabs unangetastet) ── */
+#view-heute{font-family:'Plus Jakarta Sans',sans-serif;background:var(--ds-bg);color:var(--ds-text);
+  margin:-36px -40px;padding:36px 40px;min-height:100vh}
+#view-heute .page-title,#view-heute .info-card-big,#view-heute .heute-name,#view-heute .todo-title{color:var(--ds-text)}
+#view-heute .page-subtitle,#view-heute .info-card-sub,#view-heute .heute-section-title,
+  #view-heute .todo-card-date,#view-heute .empty-state{color:var(--ds-text-secondary)}
+#view-heute .info-card,#view-heute .heute-item,#view-heute .todo-heute-item{
+  background:var(--ds-surface);border-color:var(--ds-border)}
+#view-heute .bday-card,#view-heute .workout-card{
+  background:var(--ds-accent-muted);border-color:var(--ds-accent-border)}
+#view-heute .heute-item:hover .heute-item-header{background:var(--ds-accent-muted)}
+#view-heute .heute-item-detail{border-color:var(--ds-border)}
+#view-heute .heute-expand-btn{color:var(--ds-text-secondary);background:var(--ds-accent-muted);border-color:var(--ds-border)}
+#view-heute .heute-expand-btn:hover{color:var(--ds-text)}
+#view-heute .detail-chip{background:var(--ds-accent-muted);color:var(--ds-text-secondary)}
+#view-heute .todo-cb,#view-heute .heute-cb{border-color:var(--ds-border)}
+#view-heute .workout-name{color:var(--ds-accent)}
+#view-heute .workout-day-label{color:var(--ds-text-secondary)}
+.ds-theme-toggle{background:var(--ds-surface);color:var(--ds-text);border:1px solid var(--ds-border);
+  border-radius:var(--radius-sm);width:34px;height:34px;font-size:15px;cursor:pointer;transition:border-color .15s}
+.ds-theme-toggle:hover{border-color:var(--ds-accent-border)}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg0:#0d0d0f;--bg1:#141417;--bg2:#1c1c21;--bg3:#242429;
@@ -462,6 +506,7 @@ textarea.form-textarea{resize:vertical;min-height:65px}
       <div class="page-title" id="heute-title">Guten Morgen, Jannick!</div>
       <div class="page-subtitle" id="heute-date-sub"></div>
     </div>
+    <button class="ds-theme-toggle" id="ds-theme-btn" onclick="toggleDsTheme()">🌙</button>
   </div>
 
   <div class="heute-top">
@@ -966,7 +1011,19 @@ function showView(name){
 }
 
 // ── HEUTE ─────────────────────────────────────────────────
+// Design-Toggle nur für den Heute-Tab (Dark/Light), Präferenz in ht3_theme.
+function toggleDsTheme(){
+  const light = document.documentElement.classList.toggle('light');
+  localStorage.setItem('ht3_theme', light ? 'light' : 'dark');
+  updateDsThemeIcon();
+}
+function updateDsThemeIcon(){
+  const btn = document.getElementById('ds-theme-btn');
+  if(btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
+}
+
 function renderHeute(){
+  updateDsThemeIcon();
   const now=new Date(), ds=todayStr(), hr=now.getHours();
   const g=hr<10?'Guten Morgen':hr<14?'Guten Mittag':'Guten Abend';
   document.getElementById('heute-title').textContent=g+', Jannick!';
