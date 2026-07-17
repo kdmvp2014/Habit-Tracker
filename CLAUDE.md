@@ -14,7 +14,7 @@ Repo: GitHub Pages (index.html im Root)
 
 - `Vanilla HTML/CSS/JavaScript (keine Frameworks)` 
 
-- `Supabase für geräteübergreifenden Datensync` 
+- `Supabase für Auth (E-Mail+Passwort, Bestätigung erforderlich) und geräteübergreifenden Datensync` 
 
 - `Anthropic Claude API (claude-sonnet-4-6) für KI-Features` 
 
@@ -60,13 +60,15 @@ Repo: GitHub Pages (index.html im Root)
 
 - `Eine Änderung pro Prompt — nicht mehrere Features auf einmal` 
 
-- `Keine externen Abhängigkeiten außer: Google Fonts CDN, barcode-detector-Polyfill (jsDelivr, nur bei Bedarf für Browser ohne native Barcode Detection API wie Safari/iOS geladen)` 
+- `Externe Abhängigkeiten: Google Fonts CDN, barcode-detector-Polyfill (jsDelivr, nur bei Bedarf für Browser ohne native Barcode Detection API wie Safari/iOS), @supabase/supabase-js@2 (CDN)` 
 
 - `localStorage-Key-Prefix: ht3_ (habits, logs, todos, plans)` 
 
 - `Ernährungsdaten: ern_YYYY-MM-DD` 
 
-- `Supabase User-ID: "jannick"` 
+- `Kein hardcodierter User mehr — Zeilen sind pro Account über auth.uid() isoliert (RLS, siehe supabase-setup.sql)` 
+
+- `Supabase-Dashboard: Site URL + Redirect URLs müssen auf https://tracker.jklahn.com (und ggf. localhost für Tests) zeigen, sonst schlägt der E-Mail-Bestätigungslink fehl` 
 
 ```
 ## Wichtige Konstanten im Code
