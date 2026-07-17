@@ -1523,6 +1523,10 @@ const SUPABASE_URL = 'https://oneijrohdxyxbamauyei.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZWlqcm9oZHh5eGJhbWF1eWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxODU0NTYsImV4cCI6MjA5OTc2MTQ1Nn0.gAeE222V3esQC7XYEvQaZJrR4--GD8XIv0eZj4TTtek';
 const SYNC_USER_ID = 'jannick'; // fixer User-Key (kein Login nötig)
 
+// ── USDA FOODDATA CENTRAL (generische/rohe Lebensmittel) ────
+// Kostenlosen Key holen: https://fdc.nal.usda.gov/api-key-signup/
+const USDA_API_KEY = ''; // von dir einzutragen
+
 let supabaseReady = !!(SUPABASE_URL && SUPABASE_KEY);
 let lastSyncTime  = null;
 let syncTimeout   = null;
@@ -1809,6 +1813,29 @@ function renderCustomFoodResults(box, q){
   });
 }
 
+// USDA FoodData Central: kuratierte, nicht popularitätsbasierte Datensätze speziell für
+// generische/rohe Lebensmittel (z.B. "Banana, raw") — ergänzt OpenFoodFacts, das für sowas
+// als Barcode-Scan-Datenbank strukturell schwach ist. Englischsprachig, siehe USDA_API_KEY.
+async function searchUsdaFood(q){
+  if(!USDA_API_KEY) return [];
+  try {
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(q)}&api_key=${USDA_API_KEY}&pageSize=4&dataType=${encodeURIComponent('Foundation,SR Legacy,Survey (FNDDS)')}`;
+    const r = await fetch(url);
+    if(!r.ok) return [];
+    const d = await r.json();
+    return (d.foods||[]).map(f => {
+      const get = name => (f.foodNutrients||[]).find(n => n.nutrientName===name && (name!=='Energy' || n.unitName==='KCAL'));
+      return {
+        name: f.description,
+        kcal100:    Math.round(get('Energy')?.value || 0),
+        protein100: Math.round((get('Protein')?.value||0)*10)/10,
+        carbs100:   Math.round((get('Carbohydrate, by difference')?.value||0)*10)/10,
+        fat100:     Math.round((get('Total lipid (fat)')?.value||0)*10)/10,
+      };
+    }).filter(f => f.kcal100 > 0);
+  } catch(e){ return []; }
+}
+
 function searchFood(q){
   clearTimeout(searchTimeout);
   const box = document.getElementById('search-results');
@@ -1827,18 +1854,30 @@ function searchFood(q){
     // Datenbank, einfache/generische Lebensmittel (z.B. eine rohe Banane) haben oft nur
     // sehr wenige Scans und würden bei reiner Popularitäts-Sortierung sonst nie auftauchen.
     const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&lc=de&tagtype_0=languages&tag_contains_0=contains&tag_0=german&sort_by=unique_scans_n`;
-    let products = null;
-    for(let attempt = 1; attempt <= 3 && products === null; attempt++){
-      try {
-        const r = await fetch(url);
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        const d = await r.json();
-        products = (d.products||[]).filter(p => p.product_name && p.nutriments);
-      } catch(e){
-        if(attempt < 3) await new Promise(res => setTimeout(res, 700));
+    const fetchOff = async () => {
+      let result = null;
+      for(let attempt = 1; attempt <= 3 && result === null; attempt++){
+        try {
+          const r = await fetch(url);
+          if(!r.ok) throw new Error('HTTP '+r.status);
+          const d = await r.json();
+          result = (d.products||[]).filter(p => p.product_name && p.nutriments);
+        } catch(e){
+          if(attempt < 3) await new Promise(res => setTimeout(res, 700));
+        }
       }
-    }
+      return result;
+    };
+    const [products, usdaFoods] = await Promise.all([fetchOff(), searchUsdaFood(q)]);
     document.getElementById('search-loading')?.remove();
+    usdaFoods.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.innerHTML = `<div class="search-result-name">🌱 ${f.name} · <span style="color:var(--text2)">USDA, generisch</span></div>
+        <div class="search-result-meta">${f.kcal100} kcal · ${f.protein100}g P · ${f.carbs100}g C · ${f.fat100}g F (pro 100g)</div>`;
+      item.onclick = () => selectFood(f);
+      box.appendChild(item);
+    });
     if(products === null){
       const err = document.createElement('div');
       err.style.cssText = 'padding:12px;font-size:12px;color:var(--red)';
