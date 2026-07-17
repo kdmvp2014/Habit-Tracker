@@ -1821,38 +1821,50 @@ function searchFood(q){
     loading.style.cssText = 'padding:12px;font-size:12px;color:var(--text2);font-family:var(--mono)';
     loading.textContent = 'Suche...';
     box.appendChild(loading);
-    try {
-      const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=de`;
-      const r = await fetch(url);
-      const d = await r.json();
-      const products = (d.products||[]).filter(p => p.product_name && p.nutriments);
-      document.getElementById('search-loading')?.remove();
-      if(!products.length){
-        if(!box.children.length){
-          box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text2)">Keine Ergebnisse. Manuell eingeben?</div>';
-        }
-        return;
+    // Der OpenFoodFacts-Legacy-Endpoint antwortet öfter mal mit HTTP 503 (temporär
+    // überlastet) — bis zu 3 Versuche machen die Suche in der Praxis deutlich zuverlässiger.
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=de&tagtype_0=languages&tag_contains_0=contains&tag_0=german&sort_by=unique_scans_n`;
+    let products = null;
+    for(let attempt = 1; attempt <= 3 && products === null; attempt++){
+      try {
+        const r = await fetch(url);
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const d = await r.json();
+        products = (d.products||[]).filter(p => p.product_name && p.nutriments);
+      } catch(e){
+        if(attempt < 3) await new Promise(res => setTimeout(res, 700));
       }
-      products.forEach(p => {
-        const n = p.nutriments;
-        const kcal = Math.round(n['energy-kcal_100g'] || n['energy-kcal'] || (n['energy_100g']||0)/4.184 || 0);
-        const prot = Math.round((n['proteins_100g']||0)*10)/10;
-        const carb = Math.round((n['carbohydrates_100g']||0)*10)/10;
-        const fat  = Math.round((n['fat_100g']||0)*10)/10;
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        item.innerHTML = `<div class="search-result-name">${p.product_name}${p.brands?' · <span style="color:var(--text2)">' + p.brands + '</span>':''}</div>
-          <div class="search-result-meta">${kcal} kcal · ${prot}g P · ${carb}g C · ${fat}g F (pro 100g)</div>`;
-        item.onclick = () => selectFood({name: p.product_name, kcal100: kcal, protein100: prot, carbs100: carb, fat100: fat});
-        box.appendChild(item);
-      });
-    } catch(e){
-      document.getElementById('search-loading')?.remove();
+    }
+    document.getElementById('search-loading')?.remove();
+    if(products === null){
       const err = document.createElement('div');
       err.style.cssText = 'padding:12px;font-size:12px;color:var(--red)';
-      err.textContent = 'Fehler bei der Suche.';
+      err.textContent = 'Lebensmittel-Server antwortet gerade nicht. Kurz erneut versuchen oder manuell eingeben.';
       box.appendChild(err);
+      return;
     }
+    if(!products.length){
+      if(!box.children.length){
+        box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text2)">Keine Ergebnisse. Manuell eingeben?</div>';
+      }
+      return;
+    }
+    // Tatsächlich deutschsprachige Treffer zuerst (der Sprach-Tag-Filter oben lässt
+    // auch mehrsprachige Produkte durch, deren Anzeigename nicht deutsch ist).
+    products.sort((a,b) => (a.lang==='de'?0:1) - (b.lang==='de'?0:1));
+    products.forEach(p => {
+      const n = p.nutriments;
+      const kcal = Math.round(n['energy-kcal_100g'] || n['energy-kcal'] || (n['energy_100g']||0)/4.184 || 0);
+      const prot = Math.round((n['proteins_100g']||0)*10)/10;
+      const carb = Math.round((n['carbohydrates_100g']||0)*10)/10;
+      const fat  = Math.round((n['fat_100g']||0)*10)/10;
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.innerHTML = `<div class="search-result-name">${p.product_name}${p.brands?' · <span style="color:var(--text2)">' + p.brands + '</span>':''}</div>
+        <div class="search-result-meta">${kcal} kcal · ${prot}g P · ${carb}g C · ${fat}g F (pro 100g)</div>`;
+      item.onclick = () => selectFood({name: p.product_name, kcal100: kcal, protein100: prot, carbs100: carb, fat100: fat});
+      box.appendChild(item);
+    });
   }, 400);
 }
 
