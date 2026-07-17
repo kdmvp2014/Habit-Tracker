@@ -110,27 +110,7 @@ async function initShellOnce(){
   // Service Worker registrieren
   if('serviceWorker' in navigator){
     try {
-      // Inline Service Worker als Blob
-      const swCode = `
-        const CACHE='habit-tracker-v2';
-        const ASSETS=[self.location.href.replace('/sw.js','/')];
-        self.addEventListener('install',e=>{
-          e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
-        });
-        self.addEventListener('activate',e=>{
-          e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
-        });
-        self.addEventListener('fetch',e=>{
-          if(e.request.method!=='GET')return;
-          e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
-            if(res.ok){const clone=res.clone();caches.open(CACHE).then(c=>c.put(e.request,clone));}
-            return res;
-          }).catch(()=>caches.match('/'))));
-        });
-      `;
-      const blob = new Blob([swCode],{type:'application/javascript'});
-      const url  = URL.createObjectURL(blob);
-      await navigator.serviceWorker.register(url,{scope:'./'});
+      await navigator.serviceWorker.register('/sw.js',{scope:'./'});
     } catch(e){ console.log('SW not supported in this context'); }
   }
 }
