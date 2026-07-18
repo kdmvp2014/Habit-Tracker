@@ -27,26 +27,26 @@ export function renderTodos(){
     return po[a.prio]-po[b.prio];
   });
   const cont=document.getElementById('todo-list');
-  if(!list.length){cont.innerHTML='<div class="empty-state"><div class="empty-icon">✦</div><p>Keine To-Dos gefunden.</p></div>';return;}
+  if(!list.length){cont.innerHTML='<div class="empty-state"><p>Keine To-Dos gefunden.</p></div>';return;}
   cont.innerHTML='';
   list.forEach(t=>{
     const ov=!t.done&&t.date&&t.date<todayS;
     const div=document.createElement('div');
     div.className='todo-card'+(t.done?' done-todo':'')+(ov?' overdue':'');
     div.innerHTML=`<div class="todo-cb" style="border-color:${t.done?'var(--green)':catColor(t.cat)};${t.done?'background:var(--green);color:#0d0d0f;font-weight:700':''};cursor:pointer"
-      onclick="toggleTodoDone('${t.id}')">${t.done?'✓':''}</div>
+      onclick="toggleTodoDone('${t.id}')"></div>
       <div class="todo-card-body">
         <div class="todo-card-title">${t.title}</div>
         ${t.note?`<div style="font-size:12px;color:var(--text2);margin:3px 0 4px">${t.note}</div>`:''}
         <div class="todo-card-meta">
           <span class="todo-tag tag-${t.cat}">${catLabel(t.cat)}</span>
-          ${t.date?`<span class="${ov?'overdue-badge':'todo-card-date'}">${ov?'⚠ überfällig · ':''}${fmtDisp(t.date)}</span>`:''}
+          ${t.date?`<span class="${ov?'overdue-badge':'todo-card-date'}">${ov?'überfällig · ':''}${fmtDisp(t.date)}</span>`:''}
           <span class="prio-${t.prio}">${prioLabel(t.prio)}</span>
         </div>
       </div>
       <div class="todo-card-actions">
-        <button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="openTodoModal('${t.id}')">✏</button>
-        <button class="btn btn-danger" style="padding:5px 10px;font-size:12px" onclick="deleteTodo('${t.id}')">✕</button>
+        <button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="openTodoModal('${t.id}')">Bearbeiten</button>
+        <button class="btn btn-danger" style="padding:5px 10px;font-size:12px" onclick="deleteTodo('${t.id}')">Löschen</button>
       </div>`;
     cont.appendChild(div);
   });

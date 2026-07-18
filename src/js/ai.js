@@ -5,7 +5,7 @@ export async function openAiAdvice(){
   const btn = document.getElementById('ai-btn');
   const box = document.getElementById('ai-advice-box');
   const txt = document.getElementById('ai-advice-text');
-  btn.textContent = '⏳ Laden...';
+  btn.textContent = 'Laden...';
   btn.disabled = true;
   box.style.display = 'block';
   txt.textContent = 'KI analysiert deine heutige Ernährung...';
@@ -48,6 +48,6 @@ Antworte auf Deutsch, direkt und ohne Floskeln.`;
   } catch(e){
     txt.textContent = 'Fehler beim Laden der KI-Empfehlung.';
   }
-  btn.textContent = '✦ KI-Tipp';
+  btn.textContent = 'KI-Tipp';
   btn.disabled = false;
 }

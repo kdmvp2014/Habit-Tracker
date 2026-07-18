@@ -17,7 +17,7 @@ export function renderHeute(){
 
   // Birthday
   const dbd=daysUntil(BIRTHDAY);
-  document.getElementById('bday-countdown').textContent=dbd>0?dbd:dbd===0?'🎉 Heute!':'✓';
+  document.getElementById('bday-countdown').textContent=dbd>0?dbd:dbd===0?'Heute!':'';
 
   // Workout card
   const tw=todayWorkout();
@@ -34,7 +34,7 @@ export function renderHeute(){
   const list=document.getElementById('heute-list');
   list.innerHTML='';
   if(total===0){
-    list.innerHTML='<div class="empty-state" style="padding:24px 10px"><div class="empty-icon">◎</div><p>Noch keine Habits.<br>Geh zu <strong>Habits verwalten</strong>.</p></div>';
+    list.innerHTML='<div class="empty-state" style="padding:24px 10px"><p>Noch keine Habits.<br>Geh zu <strong>Habits verwalten</strong>.</p></div>';
   } else {
     S.habits.forEach(h=>{
       const checked=isLogged(h.id,ds), streak=getStreak(h.id);
@@ -44,10 +44,10 @@ export function renderHeute(){
       const hdr=document.createElement('div');
       hdr.className='heute-item-header';
       hdr.innerHTML=`
-        <div class="heute-cb" style="${checked?`background:${h.color};border-color:transparent;color:#0d0d0f;font-weight:700`:`border-color:${h.color}`}">${checked?'✓':''}</div>
+        <div class="heute-cb" style="${checked?`background:${h.color};border-color:transparent;color:#0d0d0f;font-weight:700`:`border-color:${h.color}`}"></div>
         <span class="heute-name">${h.name}</span>
-        ${streak>1?`<span class="heute-streak">🔥 ${streak}</span>`:''}
-        ${(h.note||h.freq)?`<span class="heute-expand-btn" onclick="toggleDetail(event,'hd-${h.id}')">▾ Details</span>`:''}`;
+        ${streak>1?`<span class="heute-streak">${streak}</span>`:''}
+        ${(h.note||h.freq)?`<span class="heute-expand-btn" onclick="toggleDetail(event,'hd-${h.id}')">Details</span>`:''}`;
       hdr.onclick=ev=>{if(!ev.target.classList.contains('heute-expand-btn')){toggleLog(h.id,ds);renderHeute();}};
       wrap.appendChild(hdr);
 
@@ -72,7 +72,7 @@ export function renderHeute(){
     return{hoch:0,mittel:1,niedrig:2}[a.prio]-{hoch:0,mittel:1,niedrig:2}[b.prio];
   });
   if(open.length===0){
-    tl.innerHTML='<div class="empty-state" style="padding:24px 10px"><div class="empty-icon">✓</div><p>Keine offenen To-Dos!</p></div>';
+    tl.innerHTML='<div class="empty-state" style="padding:24px 10px"><p>Keine offenen To-Dos!</p></div>';
   } else {
     open.slice(0,8).forEach(t=>{
       const ov=t.date&&t.date<todayStr();
@@ -84,14 +84,14 @@ export function renderHeute(){
           <div class="todo-title">${t.title}</div>
           <div class="todo-meta">
             <span class="todo-tag tag-${t.cat}">${catLabel(t.cat)}</span>
-            ${t.date?`<span class="${ov?'overdue-badge':'todo-card-date'}">${ov?'⚠ ':''}${fmtDisp(t.date)}</span>`:''}
+            ${t.date?`<span class="${ov?'overdue-badge':'todo-card-date'}">${fmtDisp(t.date)}</span>`:''}
             <span class="prio-${t.prio}">${prioLabel(t.prio)}</span>
           </div>
         </div>`;
       d.onclick=()=>{toggleTodoDone(t.id);renderHeute();};
       tl.appendChild(d);
     });
-    if(open.length>8) tl.innerHTML+=`<div style="font-size:12px;color:var(--text2);text-align:center;padding:8px">+${open.length-8} weitere → <span style="color:var(--accent);cursor:pointer" onclick="showView('todos')">alle anzeigen</span></div>`;
+    if(open.length>8) tl.innerHTML+=`<div style="font-size:12px;color:var(--text2);text-align:center;padding:8px">+${open.length-8} weitere · <span style="color:var(--accent);cursor:pointer" onclick="showView('todos')">alle anzeigen</span></div>`;
   }
 }
 
@@ -99,5 +99,5 @@ export function toggleDetail(ev,id){
   ev.stopPropagation();
   const el=document.getElementById(id); if(!el)return;
   el.classList.toggle('open');
-  ev.target.textContent=el.classList.contains('open')?'▴ Details':'▾ Details';
+  ev.target.textContent='Details';
 }

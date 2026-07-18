@@ -31,14 +31,14 @@ export function renderWorkout(){
   const tws=document.getElementById('today-workout-section'); tws.innerHTML='';
   if(todayDay&&todayDay.exercises&&todayDay.exercises.length){
     const box=document.createElement('div'); box.className='today-workout-big';
-    box.innerHTML=`<div class="today-workout-title">🏋️ Heute: ${dayName(todayIdx)} <span style="font-size:12px;font-weight:400;color:var(--text2)">${todayDay.exercises.length} Übungen</span></div>
+    box.innerHTML=`<div class="today-workout-title">Heute: ${dayName(todayIdx)} <span style="font-size:12px;font-weight:400;color:var(--text2)">${todayDay.exercises.length} Übungen</span></div>
       <div class="today-ex-grid" id="today-ex-grid"></div>`;
     tws.appendChild(box);
     const grid=box.querySelector('#today-ex-grid');
     todayDay.exercises.forEach((ex,idx)=>{
       const item=document.createElement('div'); item.className='today-ex-item'+(ex.done?' done-ex':'');
       item.innerHTML=`<div class="ex-check${ex.done?' checked-ex':''}" style="border-color:var(--orange);${ex.done?'background:var(--orange);color:#0d0d0f':''}">
-        ${ex.done?'✓':''}</div>
+        </div>
         <span class="today-ex-name">${ex.name}</span>
         ${ex.sets?`<span class="today-ex-sets">${ex.sets}</span>`:''}
         ${ex.note?`<span style="font-size:11px;color:var(--text2);font-family:var(--mono)">${ex.note}</span>`:''}`;
@@ -69,10 +69,10 @@ export function renderWorkout(){
       const el=card.querySelector('#ex-list-'+i);
       exList.forEach((ex,idx)=>{
         const item=document.createElement('div'); item.className='exercise-item'+(ex.done?' done-ex':'');
-        item.innerHTML=`<div class="ex-check${ex.done?' checked-ex':''}" onclick="toggleEx(${i},${idx})" style="${ex.done?'background:var(--orange);border-color:transparent;color:#0d0d0f':''}">${ex.done?'✓':''}</div>
+        item.innerHTML=`<div class="ex-check${ex.done?' checked-ex':''}" onclick="toggleEx(${i},${idx})" style="${ex.done?'background:var(--orange);border-color:transparent;color:#0d0d0f':''}"></div>
           <span class="ex-name">${ex.name}</span>
           ${ex.sets?`<span class="ex-sets">${ex.sets}</span>`:''}
-          <button class="ex-del" onclick="deleteEx(${i},${idx})" title="Löschen">✕</button>`;
+          <button class="ex-del" onclick="deleteEx(${i},${idx})" title="Löschen">Löschen</button>`;
         el.appendChild(item);
       });
     }

@@ -114,12 +114,12 @@ export function updateSyncIndicator(state){
   const el = document.getElementById('sync-indicator');
   if(!el) return;
   if(state==='pending'){
-    el.innerHTML='<span style="color:var(--text2)">⏳ verbinde…</span>';
+    el.innerHTML='<span style="color:var(--text2)">verbinde…</span>';
   } else if(state===true){
     const t = lastSyncTime ? lastSyncTime.toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'}) : '';
-    el.innerHTML=`<span style="color:var(--green)">✓ sync ${t}</span>`;
+    el.innerHTML=`<span style="color:var(--green)">sync ${t}</span>`;
   } else {
-    el.innerHTML='<span style="color:var(--amber)">⚠ sync fehler</span>';
+    el.innerHTML='<span style="color:var(--amber)">sync fehler</span>';
   }
 }
 

@@ -43,5 +43,5 @@ export function toggleDsTheme(){
 }
 export function updateDsThemeIcon(){
   const btn = document.getElementById('ds-theme-btn');
-  if(btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️ Light' : '🌙 Dark';
+  if(btn) btn.textContent = document.documentElement.classList.contains('light') ? 'Light' : 'Dark';
 }

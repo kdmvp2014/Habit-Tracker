@@ -33,7 +33,7 @@ export function saveProfileSettings(){
   if(err){ errEl.textContent = err; return; }
   errEl.textContent = '';
   commitProfile(birthdate, heightCm, weightKg);
-  document.getElementById('settings-saved').textContent = '✓ Gespeichert';
+  document.getElementById('settings-saved').textContent = 'Gespeichert';
 }
 
 // ── Pflicht-Setup nach der ersten Anmeldung ───────────────

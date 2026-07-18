@@ -69,7 +69,7 @@ export function renderTable(){
   if(plan){
     const wtr=document.createElement('tr'); wtr.className='workout-table-row';
     const wtd=document.createElement('td'); wtd.className='name-cell';
-    wtd.innerHTML='<span style="font-size:10px">🏋️</span> <span>Workout</span>';
+    wtd.innerHTML='<span>Workout</span>';
     wtr.appendChild(wtd);
     for(let d=1;d<=dim;d++){
       const date=new Date(year,month,d), dow=date.getDay(), ds=fmtDate(date);
@@ -111,7 +111,6 @@ export function renderTable(){
       cb.style.background=checked?habit.color:'';
       cb.style.borderColor=checked?'transparent':isToday?habit.color:'';
       cb.style.color=checked?'#0d0d0f':'';
-      if(checked)cb.textContent='✓';
       if(!isFuture) wrap.onclick=()=>{toggleLog(habit.id,ds);renderTable();if(document.getElementById('view-heute').classList.contains('active'))renderHeute();};
       wrap.appendChild(cb); td.appendChild(wrap); tr.appendChild(td);
     }
@@ -152,7 +151,7 @@ function renderMonthStats(year,month,dim,todayS){
       <div style="width:80px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">
         <div style="height:100%;width:${pct}%;background:${h.color};border-radius:3px;transition:width .4s"></div></div>
       <span style="font-family:var(--mono);font-size:11px;color:var(--text1);min-width:36px;text-align:right">${pct}%</span>
-      ${streak>0?`<span style="font-size:11px;color:var(--amber)">🔥${streak}</span>`:''}`;
+      ${streak>0?`<span style="font-size:11px;color:var(--amber)">${streak}</span>`:''}`;
     c.appendChild(div);
   });
 }

@@ -56,7 +56,7 @@ export function deleteHabit(id){
 
 export function renderManage(){
   const list=document.getElementById('habits-manage-list');
-  if(!S.habits.length){list.innerHTML='<div class="empty-state"><div class="empty-icon">✦</div><p>Keine Habits. Klicke auf <strong>+ Habit</strong>.</p></div>';return;}
+  if(!S.habits.length){list.innerHTML='<div class="empty-state"><p>Keine Habits. Klicke auf <strong>+ Habit</strong>.</p></div>';return;}
   list.innerHTML='';
   S.habits.forEach(h=>{
     const div=document.createElement('div'); div.className='manage-item';

@@ -5,7 +5,6 @@ import { closeModal } from './modal-utils.js';
 
 // ── ERNÄHRUNG ─────────────────────────────────────────────
 export const MEALS = ['Frühstück','Mittagessen','Abendessen','Snacks'];
-export const MEAL_ICONS = ['☀️','🌤️','🌙','🍎'];
 
 // Goals (clean bulk)
 export const GOALS = { kcal: 3700, protein: 180, carbs: 400, fat: 110 };
@@ -115,7 +114,7 @@ export function renderErnaehrung(){
     sec.className = 'meal-section';
     sec.innerHTML = `
       <div class="meal-header">
-        <span class="meal-title">${MEAL_ICONS[mi]} ${meal}</span>
+        <span class="meal-title">${meal}</span>
         <span class="meal-kcal">${Math.round(mKcal)} kcal</span>
       </div>
       <div class="meal-items" id="meal-items-${mi}"></div>
@@ -129,7 +128,7 @@ export function renderErnaehrung(){
       div.innerHTML = `
         <div class="food-name">${f.name} <span style="font-size:11px;color:var(--text2)">${f.amount}${f.unit||'g'}</span></div>
         <div class="food-macros">${Math.round(f.kcal||0)} kcal<br>${Math.round(f.protein||0)}P · ${Math.round(f.carbs||0)}C · ${Math.round(f.fat||0)}F</div>
-        <button class="food-del" onclick="deleteFoodItem('${meal}',${fi})">✕</button>`;
+        <button class="food-del" onclick="deleteFoodItem('${meal}',${fi})">Löschen</button>`;
       il.appendChild(div);
     });
   });
@@ -195,12 +194,12 @@ function renderCustomFoodResults(box, q){
     item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px';
     const info = document.createElement('div');
     info.style.cssText = 'flex:1;min-width:0';
-    info.innerHTML = `<div class="search-result-name">🧺 ${f.name}</div>
+    info.innerHTML = `<div class="search-result-name">${f.name}</div>
       <div class="search-result-meta">${f.kcal100} kcal · ${f.protein100}g P · ${f.carbs100}g C · ${f.fat100}g F (pro 100g)</div>`;
     info.onclick = () => selectFood({name: f.name, kcal100: f.kcal100, protein100: f.protein100, carbs100: f.carbs100, fat100: f.fat100});
     const del = document.createElement('button');
     del.className = 'btn-icon';
-    del.textContent = '✕';
+    del.textContent = 'Löschen';
     del.title = 'Eigenes Lebensmittel löschen';
     del.style.flexShrink = '0';
     del.onclick = (e) => { e.stopPropagation(); deleteCustomFood(f.id); renderCustomFoodResults(box, q); };
@@ -281,7 +280,7 @@ export function searchFood(q){
     usdaFoods.forEach(f => {
       const item = document.createElement('div');
       item.className = 'search-result-item';
-      item.innerHTML = `<div class="search-result-name">🌱 ${f.name} · <span style="color:var(--text2)">USDA, generisch</span></div>
+      item.innerHTML = `<div class="search-result-name">${f.name} · <span style="color:var(--text2)">USDA, generisch</span></div>
         <div class="search-result-meta">${f.kcal100} kcal · ${f.protein100}g P · ${f.carbs100}g C · ${f.fat100}g F (pro 100g)</div>`;
       item.onclick = () => selectFood(f);
       box.appendChild(item);
@@ -351,7 +350,7 @@ export function updateFoodCalc(){
   const carb = Math.round(selectedFoodData.carbs100 * factor * 10)/10;
   const fat  = Math.round(selectedFoodData.fat100 * factor * 10)/10;
   document.getElementById('food-calc-preview').textContent =
-    `→ ${kcal} kcal · ${prot}g Protein · ${carb}g Carbs · ${fat}g Fett`;
+    `${kcal} kcal · ${prot}g Protein · ${carb}g Carbs · ${fat}g Fett`;
 }
 
 // Baut aus den manuellen pro-100g-Feldern ein Food-Objekt, speichert es optional
