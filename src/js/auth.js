@@ -1,10 +1,11 @@
 import {
   sb, currentUser, setCurrentUser, appStarted, setAppStarted,
-  S, load, updateSyncIndicator, loadFromSupabase, syncToSupabase
+  S, load, updateSyncIndicator, loadFromSupabase, syncToSupabase, hasProfile
 } from './state.js';
 import { DOW_S } from './constants.js';
 import { renderHeute } from './heute.js';
 import { updateDsThemeIcon } from './nav.js';
+import { openProfileSetupModal } from './settings.js';
 
 let pendingResendEmail = null;
 
@@ -133,4 +134,6 @@ async function loadUserData(){
   } else {
     updateSyncIndicator(false);
   }
+
+  if(!hasProfile()) openProfileSetupModal();
 }

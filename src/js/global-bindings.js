@@ -14,6 +14,7 @@ import { handleLogin, handleLogout, handleResend, handleSignup, showAuthSection 
 import { openAiAdvice } from './ai.js';
 import { showView, toggleDsTheme } from './nav.js';
 import { toggleDetail } from './heute.js';
+import { saveProfileSettings, saveProfileSetup } from './settings.js';
 
 window.applyManualFood = applyManualFood;
 window.changeMonth = changeMonth;
@@ -42,6 +43,8 @@ window.renamePlan = renamePlan;
 window.saveExercise = saveExercise;
 window.saveFood = saveFood;
 window.saveHabit = saveHabit;
+window.saveProfileSettings = saveProfileSettings;
+window.saveProfileSetup = saveProfileSetup;
 window.savePlan = savePlan;
 window.saveTodo = saveTodo;
 window.searchFood = searchFood;

@@ -35,6 +35,9 @@ create table if not exists public.tracker_nutrition (
 
 -- Catches up older setups that predate a given column (safe no-op otherwise)
 alter table public.tracker_data add column if not exists custom_foods text;
+alter table public.tracker_data add column if not exists birthdate date;
+alter table public.tracker_data add column if not exists height_cm numeric;
+alter table public.tracker_data add column if not exists weight_kg numeric;
 
 alter table public.tracker_data      enable row level security;
 alter table public.tracker_nutrition enable row level security;

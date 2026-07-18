@@ -4,11 +4,12 @@ import { renderWorkout } from './workout.js';
 import { renderTodos } from './todos.js';
 import { renderManage } from './habits.js';
 import { renderErnaehrung } from './nutrition.js';
+import { renderSettings } from './settings.js';
 
 // ── VIEW SWITCH ───────────────────────────────────────────
 const VIEW_LABELS = {
   heute:'Heute', monat:'Monatsraster', workout:'Workout',
-  todos:'To-Dos & Termine', habits:'Habits', ernaehrung:'Ernährung'
+  todos:'To-Dos & Termine', habits:'Habits', ernaehrung:'Ernährung', settings:'Einstellungen'
 };
 
 export function showView(name){
@@ -31,6 +32,7 @@ export function showView(name){
   if(name==='todos')      renderTodos();
   if(name==='habits')     renderManage();
   if(name==='ernaehrung') renderErnaehrung();
+  if(name==='settings')   renderSettings();
 }
 
 // ── DESIGN TOGGLE (Dark/Light, app-weit), Präferenz in ht3_theme ──────────

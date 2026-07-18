@@ -8,6 +8,7 @@ export let S = {
   todos:   [],  // {id,title,note,date,cat,prio,done}
   plans:   [],  // {id,name,days:[{exercises:[{name,sets,note,done}]}×7]}  days[0]=Mo
   customFoods: [], // {id,name,kcal100,protein100,carbs100,fat100}
+  profile: { birthdate:null, heightCm:null, weightKg:null },
   activePlanId: null,
   viewMonth: null,
   editingHabitId: null,
@@ -34,8 +35,14 @@ export function load(){
   S.todos  = tryOld(nsKey('ht3_todos'), 'ht2_todos')  || [];
   S.plans  = JSON.parse(localStorage.getItem(nsKey('ht3_plans'))||'[]');
   S.customFoods = JSON.parse(localStorage.getItem(nsKey('ht3_customfoods'))||'[]');
+  S.profile = JSON.parse(localStorage.getItem(nsKey('ht3_profile'))||'null') || { birthdate:null, heightCm:null, weightKg:null };
   S.activePlanId = localStorage.getItem(nsKey('ht3_activePlan'))||null;
   if(!S.activePlanId && S.plans.length) S.activePlanId = S.plans[0].id;
+}
+
+// Alle drei Profil-Felder müssen gesetzt sein, sonst gilt das Setup als nicht abgeschlossen
+export function hasProfile(){
+  return !!(S.profile && S.profile.birthdate && S.profile.heightCm && S.profile.weightKg);
 }
 
 // ── SUPABASE AUTH + SYNC ──────────────────────────────────
@@ -63,6 +70,9 @@ export async function syncToSupabase(){
       plans:        JSON.stringify(S.plans),
       custom_foods: JSON.stringify(S.customFoods),
       active_plan:  S.activePlanId||'',
+      birthdate:    S.profile.birthdate||null,
+      height_cm:    S.profile.heightCm||null,
+      weight_kg:    S.profile.weightKg||null,
       updated_at:   new Date().toISOString()
     };
     const { error } = await sb.from('tracker_data').upsert(payload, { onConflict: 'user_id' });
@@ -85,6 +95,9 @@ export async function loadFromSupabase(){
     if(row.plans)         S.plans      = JSON.parse(row.plans);
     if(row.custom_foods) S.customFoods = JSON.parse(row.custom_foods);
     if(row.active_plan)  S.activePlanId= row.active_plan;
+    if(row.birthdate || row.height_cm || row.weight_kg){
+      S.profile = { birthdate: row.birthdate||null, heightCm: row.height_cm||null, weightKg: row.weight_kg||null };
+    }
     save(); // auch in localStorage spiegeln
     return 'ok';
   } catch(e){ return 'error'; }
@@ -117,6 +130,7 @@ export function save(){
   localStorage.setItem(nsKey('ht3_todos'),  JSON.stringify(S.todos));
   localStorage.setItem(nsKey('ht3_plans'),  JSON.stringify(S.plans));
   localStorage.setItem(nsKey('ht3_customfoods'), JSON.stringify(S.customFoods));
+  localStorage.setItem(nsKey('ht3_profile'), JSON.stringify(S.profile));
   localStorage.setItem(nsKey('ht3_activePlan'), S.activePlanId||'');
   debouncedSync();
 }
