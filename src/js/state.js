@@ -7,7 +7,7 @@ export let S = {
   logs:    {},  // {"YYYY-MM-DD":{hid:bool}}
   todos:   [],  // {id,title,note,date,cat,prio,done}
   plans:   [],  // {id,name,days:[{exercises:[{name,sets,note,done}]}×7]}  days[0]=Mo
-  customFoods: [], // {id,name,kcal100,protein100,carbs100,fat100}
+  customFoods: [], // {id,name,kcal100,protein100,carbs100,fat100, fiber100,sugar100,vitaminA100,vitaminC100,vitaminD100,vitaminB12100,folate100,calcium100,iron100,magnesium100,potassium100,zinc100,sodium100}
   profile: { firstName:null, birthdate:null, heightCm:null, weightKg:null },
   activePlanId: null,
   viewMonth: null,

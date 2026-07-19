@@ -9,6 +9,27 @@ export const MEALS = ['Frühstück','Mittagessen','Abendessen','Snacks'];
 // Goals (clean bulk)
 export const GOALS = { kcal: 3700, protein: 180, carbs: 400, fat: 110 };
 
+// Mikronährstoff-Richtwerte. Die meisten sind EU-Nährstoffbezugswerte (NRV) wie auf
+// Lebensmittelverpackungen; Ballaststoffe/Zucker haben keinen offiziellen NRV und sind
+// daher grobe, gängige Richtwerte (DGE-Empfehlung bzw. von der Zucker-Referenzmenge
+// abgeleitet). limitType 'min' = Ziel erreichen ist gut, 'max' = nicht überschreiten.
+export const MICRO_GOALS = {
+  fiber:      { value: 30,   unit: 'g',  label: 'Ballaststoffe', limitType: 'min' },
+  sugar:      { value: 90,   unit: 'g',  label: 'Zucker',        limitType: 'max' },
+  vitaminA:   { value: 800,  unit: 'µg', label: 'Vitamin A',     limitType: 'min' },
+  vitaminC:   { value: 80,   unit: 'mg', label: 'Vitamin C',     limitType: 'min' },
+  vitaminD:   { value: 5,    unit: 'µg', label: 'Vitamin D',     limitType: 'min' },
+  vitaminB12: { value: 2.5,  unit: 'µg', label: 'Vitamin B12',   limitType: 'min' },
+  folate:     { value: 200,  unit: 'µg', label: 'Folsäure',      limitType: 'min' },
+  calcium:    { value: 800,  unit: 'mg', label: 'Calcium',       limitType: 'min' },
+  iron:       { value: 14,   unit: 'mg', label: 'Eisen',         limitType: 'min' },
+  magnesium:  { value: 375,  unit: 'mg', label: 'Magnesium',     limitType: 'min' },
+  potassium:  { value: 2000, unit: 'mg', label: 'Kalium',        limitType: 'min' },
+  zinc:       { value: 10,   unit: 'mg', label: 'Zink',          limitType: 'min' },
+  sodium:     { value: 2400, unit: 'mg', label: 'Natrium',       limitType: 'max' },
+};
+const MICRO_KEYS = Object.keys(MICRO_GOALS);
+
 export let ernDate = todayStr();
 let selectedFoodData = null;
 let scannerStream = null;
@@ -73,12 +94,14 @@ export function renderErnaehrung(){
 
   // Totals
   let totKcal=0, totProt=0, totCarbs=0, totFat=0;
+  const totMicro = {}; MICRO_KEYS.forEach(k => totMicro[k]=0);
   MEALS.forEach(m => {
     (data.meals[m]||[]).forEach(f => {
       totKcal  += f.kcal  ||0;
       totProt  += f.protein||0;
       totCarbs += f.carbs ||0;
       totFat   += f.fat   ||0;
+      MICRO_KEYS.forEach(k => totMicro[k] += f[k]||0);
     });
   });
 
@@ -102,6 +125,29 @@ export function renderErnaehrung(){
       <div class="macro-goal">${m.unit} · Ziel: ${m.goal}</div>
       <div class="macro-bar-wrap"><div class="macro-bar" style="width:${pct}%;background:${over?'var(--red)':m.color}"></div></div>`;
     mg.appendChild(div);
+  });
+
+  // Mikronährstoff-Karten: eigener Bereich, eigene Ziel-Semantik. Bei limitType 'min'
+  // (die meisten Vitamine/Mineralstoffe) ist Erreichen/Überschreiten gut → nie rot,
+  // grün sobald erreicht. Bei 'max' (Zucker, Natrium) gilt wie bei den Makros: rot,
+  // sobald überschritten.
+  const mig = document.getElementById('micro-grid');
+  mig.innerHTML = '';
+  MICRO_KEYS.forEach(k => {
+    const goal = MICRO_GOALS[k];
+    const val = Math.round(totMicro[k]*10)/10;
+    const pct = Math.min(100, Math.round(val/goal.value*100));
+    const over = goal.limitType==='max' && val > goal.value;
+    const reached = goal.limitType==='min' && val >= goal.value;
+    const color = over ? 'var(--red)' : (reached ? 'var(--green)' : 'var(--accent)');
+    const div = document.createElement('div');
+    div.className = 'macro-card';
+    div.innerHTML = `
+      <div class="macro-label">${goal.label}</div>
+      <div class="macro-val" style="color:${color}">${val}</div>
+      <div class="macro-goal">${goal.unit} · ${goal.limitType==='max'?'Max':'Ziel'}: ${goal.value}</div>
+      <div class="macro-bar-wrap"><div class="macro-bar" style="width:${pct}%;background:${color}"></div></div>`;
+    mig.appendChild(div);
   });
 
   // Meals
@@ -156,6 +202,8 @@ export function openFoodModal(meal){
   document.getElementById('fm-protein').value = '';
   document.getElementById('fm-carbs').value = '';
   document.getElementById('fm-fat').value = '';
+  MICRO_KEYS.forEach(k => { const el = document.getElementById('fm-'+k.toLowerCase()); if(el) el.value=''; });
+  document.getElementById('micro-entry').style.display = 'none';
   document.getElementById('fm-save-custom').checked = true;
   document.getElementById('fm-amount').value = '100';
   document.getElementById('fm-unit').value = 'g';
@@ -166,6 +214,11 @@ export function openFoodModal(meal){
 
 export function toggleManualEntry(){
   const el = document.getElementById('manual-entry');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+export function toggleMicroEntry(){
+  const el = document.getElementById('micro-entry');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
@@ -196,7 +249,7 @@ function renderCustomFoodResults(box, q){
     info.style.cssText = 'flex:1;min-width:0';
     info.innerHTML = `<div class="search-result-name">${f.name}</div>
       <div class="search-result-meta">${f.kcal100} kcal · ${f.protein100}g P · ${f.carbs100}g C · ${f.fat100}g F (pro 100g)</div>`;
-    info.onclick = () => selectFood({name: f.name, kcal100: f.kcal100, protein100: f.protein100, carbs100: f.carbs100, fat100: f.fat100});
+    info.onclick = () => selectFood({...f});
     const del = document.createElement('button');
     del.className = 'btn-icon';
     del.textContent = 'Löschen';
@@ -220,6 +273,49 @@ export function setUsdaApiKey(){
   location.reload();
 }
 
+// USDA liefert pro Nährwert eine explizite unitName (MG/UG/G) mit — anders als bei
+// OpenFoodFacts lässt sich die Einheit hier also sicher statt geraten umrechnen.
+// Mehrere Kandidatennamen pro Nährstoff, da sich Feldnamen zwischen den Datensätzen
+// (Foundation/SR Legacy/FNDDS) leicht unterscheiden können.
+const USDA_MICRO_MAP = {
+  fiber:      { names:['Fiber, total dietary'],                                unit:'g'  },
+  sugar:      { names:['Sugars, total including NLEA','Sugars, total'],        unit:'g'  },
+  vitaminA:   { names:['Vitamin A, RAE'],                                      unit:'µg' },
+  vitaminC:   { names:['Vitamin C, total ascorbic acid'],                      unit:'mg' },
+  vitaminD:   { names:['Vitamin D (D2 + D3)'],                                 unit:'µg' },
+  vitaminB12: { names:['Vitamin B-12'],                                        unit:'µg' },
+  folate:     { names:['Folate, total'],                                       unit:'µg' },
+  calcium:    { names:['Calcium, Ca'],                                         unit:'mg' },
+  iron:       { names:['Iron, Fe'],                                            unit:'mg' },
+  magnesium:  { names:['Magnesium, Mg'],                                       unit:'mg' },
+  potassium:  { names:['Potassium, K'],                                        unit:'mg' },
+  zinc:       { names:['Zinc, Zn'],                                            unit:'mg' },
+  sodium:     { names:['Sodium, Na'],                                          unit:'mg' },
+};
+function usdaToGrams(value, unitName){
+  switch((unitName||'').toUpperCase()){
+    case 'MG': return value/1000;
+    case 'UG': case 'µG': return value/1e6;
+    default:   return value;
+  }
+}
+function gramsToUnit(g, unit){
+  if(unit==='mg') return g*1000;
+  if(unit==='µg') return g*1e6;
+  return g;
+}
+function mapUsdaNutrients(foodNutrients){
+  const list = foodNutrients || [];
+  const out = {};
+  MICRO_KEYS.forEach(k => {
+    const cfg = USDA_MICRO_MAP[k];
+    const hit = cfg.names.map(nm => list.find(n => n.nutrientName===nm)).find(Boolean);
+    const grams = hit ? usdaToGrams(hit.value||0, hit.unitName) : 0;
+    out[k+'100'] = Math.round(gramsToUnit(grams, cfg.unit) * 10)/10;
+  });
+  return out;
+}
+
 // USDA FoodData Central: kuratierte, nicht popularitätsbasierte Datensätze speziell für
 // generische/rohe Lebensmittel (z.B. "Banana, raw") — ergänzt OpenFoodFacts, das für sowas
 // als Barcode-Scan-Datenbank strukturell schwach ist. Englischsprachig, siehe USDA_API_KEY.
@@ -238,9 +334,40 @@ async function searchUsdaFood(q){
         protein100: Math.round((get('Protein')?.value||0)*10)/10,
         carbs100:   Math.round((get('Carbohydrate, by difference')?.value||0)*10)/10,
         fat100:     Math.round((get('Total lipid (fat)')?.value||0)*10)/10,
+        ...mapUsdaNutrients(f.foodNutrients),
       };
     }).filter(f => f.kcal100 > 0);
   } catch(e){ return []; }
+}
+
+// OpenFoodFacts normalisiert nutriments-Werte intern immer auf Gramm (auch bei
+// mg/µg-Nährstoffen) — daher die Skalierungsfaktoren. sodium_100g fehlt bei vielen
+// Produkten; salt_100g (Salz = Natrium × 2,5) dient dann als Fallback.
+const OFF_MICRO_MAP = {
+  fiber:      { key:'fiber_100g',       scale:1    },
+  sugar:      { key:'sugars_100g',      scale:1    },
+  vitaminA:   { key:'vitamin-a_100g',   scale:1e6  },
+  vitaminC:   { key:'vitamin-c_100g',   scale:1000 },
+  vitaminD:   { key:'vitamin-d_100g',   scale:1e6  },
+  vitaminB12: { key:'vitamin-b12_100g', scale:1e6  },
+  folate:     { key:'vitamin-b9_100g',  scale:1e6  },
+  calcium:    { key:'calcium_100g',     scale:1000 },
+  iron:       { key:'iron_100g',        scale:1000 },
+  magnesium:  { key:'magnesium_100g',   scale:1000 },
+  potassium:  { key:'potassium_100g',   scale:1000 },
+  zinc:       { key:'zinc_100g',        scale:1000 },
+  sodium:     { key:'sodium_100g',      scale:1000 },
+};
+function mapOffNutriments(n){
+  n = n || {};
+  const out = {};
+  MICRO_KEYS.forEach(k => {
+    const m = OFF_MICRO_MAP[k];
+    let raw = n[m.key];
+    if(raw == null && k==='sodium' && n['salt_100g'] != null) raw = n['salt_100g']/2.5;
+    out[k+'100'] = Math.round((raw||0) * m.scale * 10)/10;
+  });
+  return out;
 }
 
 export function searchFood(q){
@@ -323,7 +450,7 @@ export function searchFood(q){
       item.className = 'search-result-item';
       item.innerHTML = `<div class="search-result-name">${p.product_name}${p.brands?' · <span style="color:var(--text2)">' + p.brands + '</span>':''}</div>
         <div class="search-result-meta">${kcal} kcal · ${prot}g P · ${carb}g C · ${fat}g F (pro 100g)</div>`;
-      item.onclick = () => selectFood({name: p.product_name, kcal100: kcal, protein100: prot, carbs100: carb, fat100: fat});
+      item.onclick = () => selectFood({name: p.product_name, kcal100: kcal, protein100: prot, carbs100: carb, fat100: fat, ...mapOffNutriments(n)});
       box.appendChild(item);
     });
   }, 400);
@@ -365,6 +492,10 @@ export function applyManualFood(){
     carbs100:   parseFloat(document.getElementById('fm-carbs').value)||0,
     fat100:     parseFloat(document.getElementById('fm-fat').value)||0,
   };
+  MICRO_KEYS.forEach(k => {
+    const el = document.getElementById('fm-'+k.toLowerCase());
+    food[k+'100'] = (el && parseFloat(el.value)) || 0;
+  });
   if(document.getElementById('fm-save-custom').checked) upsertCustomFood(food);
   selectFood(food);
   document.getElementById('manual-entry').style.display = 'none';
@@ -381,14 +512,18 @@ export function saveFood(){
   const unit   = document.getElementById('fm-unit').value;
   const factor = (unit==='stk'||unit==='portion') ? 1 : amount/100;
 
-  data.meals[meal].push({
+  const entry = {
     name: selectedFoodData.name,
     amount, unit,
     kcal:    Math.round(selectedFoodData.kcal100 * factor),
     protein: Math.round(selectedFoodData.protein100 * factor * 10)/10,
     carbs:   Math.round(selectedFoodData.carbs100 * factor * 10)/10,
     fat:     Math.round(selectedFoodData.fat100 * factor * 10)/10,
+  };
+  MICRO_KEYS.forEach(k => {
+    entry[k] = Math.round((selectedFoodData[k+'100']||0) * factor * 10)/10;
   });
+  data.meals[meal].push(entry);
   saveErnDay(ernDate, data);
   closeModal('food-modal');
   renderErnaehrung();
@@ -466,6 +601,7 @@ async function lookupBarcode(barcode){
         protein100: Math.round((n['proteins_100g']||0)*10)/10,
         carbs100:   Math.round((n['carbohydrates_100g']||0)*10)/10,
         fat100:     Math.round((n['fat_100g']||0)*10)/10,
+        ...mapOffNutriments(n),
       });
       document.getElementById('food-modal').classList.add('open');
     } else {

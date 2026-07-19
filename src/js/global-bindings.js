@@ -4,7 +4,7 @@
 // render*() template literals), which are always evaluated against
 // global scope. This list was derived by grepping index.html + every
 // src/js/*.js file for on(click|change|input|submit|keydown|keyup|error)="name(".
-import { applyManualFood, openFoodModal, toggleManualEntry, deleteFoodItem, setUsdaApiKey, searchFood, updateFoodCalc, openBarcodeScanner, stopScanner, saveFood, ernChangeDay } from './nutrition.js';
+import { applyManualFood, openFoodModal, toggleManualEntry, toggleMicroEntry, deleteFoodItem, setUsdaApiKey, searchFood, updateFoodCalc, openBarcodeScanner, stopScanner, saveFood, ernChangeDay } from './nutrition.js';
 import { changeMonth, goToday } from './calendar.js';
 import { closeModal, handleOverlay } from './modal-utils.js';
 import { deleteEx, openExModal, toggleEx, openPlanModal, savePlan, deletePlan, renamePlan, saveExercise } from './workout.js';
@@ -59,5 +59,6 @@ window.toggleDetail = toggleDetail;
 window.toggleDsTheme = toggleDsTheme;
 window.toggleEx = toggleEx;
 window.toggleManualEntry = toggleManualEntry;
+window.toggleMicroEntry = toggleMicroEntry;
 window.toggleTodoDone = toggleTodoDone;
 window.updateFoodCalc = updateFoodCalc;
