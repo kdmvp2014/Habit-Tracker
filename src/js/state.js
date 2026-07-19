@@ -105,10 +105,24 @@ export async function loadFromSupabase(){
 }
 
 // Debounced sync — speichert 2 Sek nach letzter Änderung
+let pendingSync = false;
 function debouncedSync(){
+  pendingSync = true;
   clearTimeout(syncTimeout);
-  syncTimeout = setTimeout(syncToSupabase, 2000);
+  syncTimeout = setTimeout(()=>{ pendingSync=false; syncToSupabase(); }, 2000);
 }
+
+// Auf dem Handy wird die App oft direkt nach einer Änderung weggewischt/gewechselt,
+// bevor der 2-Sek-Timer feuert — dann bleibt die Änderung nur lokal. Deshalb bei
+// jedem Wechsel in den Hintergrund einen ausstehenden Sync sofort auslösen.
+function flushPendingSync(){
+  if(!pendingSync) return;
+  clearTimeout(syncTimeout);
+  pendingSync = false;
+  syncToSupabase();
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flushPendingSync(); });
+window.addEventListener('pagehide', flushPendingSync);
 
 // Sync-Indikator in Sidebar + mobilem Menü
 export function updateSyncIndicator(state){
