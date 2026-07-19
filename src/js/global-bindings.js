@@ -12,7 +12,7 @@ import { deleteHabit, editHabit, openHabitModal, saveHabit } from './habits.js';
 import { deleteTodo, openTodoModal, saveTodo, toggleTodoDone, setCatFilter, setFilter } from './todos.js';
 import { handleLogin, handleLogout, handleResend, handleSignup, showAuthSection } from './auth.js';
 import { openAiAdvice } from './ai.js';
-import { showView, toggleDsTheme } from './nav.js';
+import { showView, toggleDsTheme, openMobileMenu } from './nav.js';
 import { toggleDetail } from './heute.js';
 import { saveProfileSettings, saveProfileSetup } from './settings.js';
 
@@ -37,6 +37,7 @@ window.openBarcodeScanner = openBarcodeScanner;
 window.openExModal = openExModal;
 window.openFoodModal = openFoodModal;
 window.openHabitModal = openHabitModal;
+window.openMobileMenu = openMobileMenu;
 window.openPlanModal = openPlanModal;
 window.openTodoModal = openTodoModal;
 window.renamePlan = renamePlan;

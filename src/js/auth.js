@@ -93,20 +93,19 @@ async function initShellOnce(){
   updateDsThemeIcon();
   const n=new Date();
   S.viewMonth=new Date(n.getFullYear(),n.getMonth(),1);
-  const d=document.getElementById('sidebar-date');
-  d.innerHTML=String(n.getDate()).padStart(2,'0')+'.'+String(n.getMonth()+1).padStart(2,'0')+'.'+n.getFullYear()+'<br>'+DOW_S[n.getDay()];
+  const dateHtml=String(n.getDate()).padStart(2,'0')+'.'+String(n.getMonth()+1).padStart(2,'0')+'.'+n.getFullYear()+'<br>'+DOW_S[n.getDay()];
+  document.querySelectorAll('.date-display').forEach(el=>el.innerHTML=dateHtml);
   // Mobile header date
   const mhd=document.getElementById('mobile-header-date');
   if(mhd) mhd.textContent=DOW_S[n.getDay()]+', '+String(n.getDate()).padStart(2,'0')+'.'+String(n.getMonth()+1).padStart(2,'0')+'.';
 
-  // Sync-Indikator in Sidebar anzeigen
-  const footer = document.querySelector('.sidebar-footer');
-  if(footer){
+  // Sync-Indikator in Sidebar + mobilem Menü anzeigen
+  document.querySelectorAll('.sidebar-footer').forEach(footer=>{
     const syncEl = document.createElement('div');
-    syncEl.id='sync-indicator';
+    syncEl.className='sync-indicator';
     syncEl.style.cssText='font-family:var(--mono);font-size:10px;margin-top:8px';
     footer.appendChild(syncEl);
-  }
+  });
 
   // Service Worker registrieren
   if('serviceWorker' in navigator){

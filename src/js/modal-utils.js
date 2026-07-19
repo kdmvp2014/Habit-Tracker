@@ -6,5 +6,5 @@ export function handleOverlay(e,id){if(e.target===document.getElementById(id))cl
 
 // ── KEYBOARD ──────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')['habit-modal','todo-modal','plan-modal','exercise-modal'].forEach(id=>closeModal(id));
+  if(e.key==='Escape')['habit-modal','todo-modal','plan-modal','exercise-modal','mobile-menu-overlay'].forEach(id=>closeModal(id));
 });

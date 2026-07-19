@@ -10,7 +10,7 @@ import { toggleTodoDone } from './todos.js';
 export function renderHeute(){
   const now=new Date(), ds=todayStr(), hr=now.getHours();
   const g=hr<10?'Guten Morgen':hr<14?'Guten Mittag':'Guten Abend';
-  const displayName = currentUser && currentUser.email ? currentUser.email.split('@')[0] : '';
+  const displayName = (S.profile && S.profile.firstName) || (currentUser && currentUser.email ? currentUser.email.split('@')[0] : '');
   document.getElementById('heute-title').textContent = displayName ? g+', '+displayName+'!' : g+'!';
   document.getElementById('heute-date-sub').textContent=
     DOW_L[now.getDay()]+', '+now.getDate()+'. '+MONTHS[now.getMonth()]+' '+now.getFullYear();
