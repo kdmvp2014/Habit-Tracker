@@ -107,10 +107,22 @@ async function initShellOnce(){
     footer.appendChild(syncEl);
   });
 
-  // Service Worker registrieren
+  // Service Worker registrieren + Updates aktiv einfordern, statt auf den
+  // browser-internen Timer zu warten — sonst bleiben Geräte (v.a. iOS-PWAs),
+  // die die App nicht komplett neu starten, auf einem alten SW-Stand hängen.
   if('serviceWorker' in navigator){
     try {
-      await navigator.serviceWorker.register('/sw.js',{scope:'./'});
+      const reg = await navigator.serviceWorker.register('/sw.js',{scope:'./'});
+      reg.update();
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.visibilityState==='visible') reg.update();
+      });
+      let reloadedForNewSw = false;
+      navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+        if(reloadedForNewSw) return;
+        reloadedForNewSw = true;
+        location.reload();
+      });
     } catch(e){ console.log('SW not supported in this context'); }
   }
 }
