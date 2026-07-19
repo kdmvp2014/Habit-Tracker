@@ -342,6 +342,7 @@
 
   <!-- Macro overview -->
   <div class="macro-grid" id="macro-grid"></div>
+  <div class="micro-grid" id="micro-grid"></div>
 
   <!-- Meals -->
   <div id="meals-container"></div>
@@ -440,6 +441,65 @@
         <div class="form-group">
           <label class="form-label">Fett (g) / 100g</label>
           <input class="form-input" id="fm-fat" type="number" placeholder="0">
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="toggleMicroEntry()" style="font-size:11px;margin-bottom:12px">
+        Mikronährstoffe (optional)
+      </button>
+      <div id="micro-entry" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="form-group">
+            <label class="form-label">Ballaststoffe (g) / 100g</label>
+            <input class="form-input" id="fm-fiber" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Zucker (g) / 100g</label>
+            <input class="form-input" id="fm-sugar" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vitamin A (µg) / 100g</label>
+            <input class="form-input" id="fm-vitamina" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vitamin C (mg) / 100g</label>
+            <input class="form-input" id="fm-vitaminc" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vitamin D (µg) / 100g</label>
+            <input class="form-input" id="fm-vitamind" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vitamin B12 (µg) / 100g</label>
+            <input class="form-input" id="fm-vitaminb12" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Folsäure (µg) / 100g</label>
+            <input class="form-input" id="fm-folate" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Calcium (mg) / 100g</label>
+            <input class="form-input" id="fm-calcium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Eisen (mg) / 100g</label>
+            <input class="form-input" id="fm-iron" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Magnesium (mg) / 100g</label>
+            <input class="form-input" id="fm-magnesium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kalium (mg) / 100g</label>
+            <input class="form-input" id="fm-potassium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Zink (mg) / 100g</label>
+            <input class="form-input" id="fm-zinc" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Natrium (mg) / 100g</label>
+            <input class="form-input" id="fm-sodium" type="number" placeholder="0">
+          </div>
         </div>
       </div>
       <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);margin-bottom:12px;cursor:pointer">
