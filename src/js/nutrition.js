@@ -262,17 +262,6 @@ function renderCustomFoodResults(box, q){
   });
 }
 
-// Key wird bewusst nicht im (öffentlichen) Repo gespeichert, sondern einmalig lokal
-// im Browser hinterlegt. Ein Seiten-Reload danach lädt USDA_API_KEY neu aus localStorage.
-export function setUsdaApiKey(){
-  const current = localStorage.getItem('usda_api_key') || '';
-  const k = prompt('USDA FoodData Central API-Key eingeben (kostenlos: fdc.nal.usda.gov/api-key-signup):', current);
-  if(k === null) return;
-  if(k.trim()) localStorage.setItem('usda_api_key', k.trim());
-  else localStorage.removeItem('usda_api_key');
-  location.reload();
-}
-
 // USDA liefert pro Nährwert eine explizite unitName (MG/UG/G) mit — anders als bei
 // OpenFoodFacts lässt sich die Einheit hier also sicher statt geraten umrechnen.
 // Mehrere Kandidatennamen pro Nährstoff, da sich Feldnamen zwischen den Datensätzen

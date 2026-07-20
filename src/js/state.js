@@ -48,13 +48,8 @@ export function hasProfile(){
 // ── SUPABASE AUTH + SYNC ──────────────────────────────────
 export const SUPABASE_URL = 'https://oneijrohdxyxbamauyei.supabase.co';
 export const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZWlqcm9oZHh5eGJhbWF1eWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxODU0NTYsImV4cCI6MjA5OTc2MTQ1Nn0.gAeE222V3esQC7XYEvQaZJrR4--GD8XIv0eZj4TTtek';
+export const USDA_API_KEY = 'VgK2jYXzU9PbFHiOwi6BkQ1MMxzaJHldmiiM4cfX';
 export const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ── USDA FOODDATA CENTRAL (generische/rohe Lebensmittel) ────
-// Kostenlosen Key holen: https://fdc.nal.usda.gov/api-key-signup/
-// Bewusst NICHT hier im Code (öffentliches Repo!) — wird per Button in der App
-// einmalig lokal im Browser gespeichert (localStorage), siehe setUsdaApiKey().
-export const USDA_API_KEY = localStorage.getItem('usda_api_key') || '';
 
 let lastSyncTime      = null;
 let syncTimeout       = null;
