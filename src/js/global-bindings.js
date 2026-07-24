@@ -14,7 +14,7 @@ import { handleLogin, handleLogout, handleResend, handleSignup, showAuthSection 
 import { openAiAdvice } from './ai.js';
 import { showView, toggleDsTheme, openMobileMenu } from './nav.js';
 import { toggleDetail } from './heute.js';
-import { saveProfileSettings, saveProfileSetup } from './settings.js';
+import { saveProfileSettings, saveProfileSetup, setProfileGender } from './settings.js';
 
 window.applyManualFood = applyManualFood;
 window.changeMonth = changeMonth;
@@ -51,6 +51,7 @@ window.saveTodo = saveTodo;
 window.searchFood = searchFood;
 window.setCatFilter = setCatFilter;
 window.setFilter = setFilter;
+window.setProfileGender = setProfileGender;
 window.showAuthSection = showAuthSection;
 window.showView = showView;
 window.stopScanner = stopScanner;

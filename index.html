@@ -342,7 +342,17 @@
 
   <!-- Macro overview -->
   <div class="macro-grid" id="macro-grid"></div>
-  <div class="micro-grid" id="micro-grid"></div>
+
+  <!-- Micronutrient dashboard -->
+  <div class="page-subtitle" style="margin-bottom:8px">Mikronährstoffe</div>
+  <div class="micro-section-title">Ballaststoffe & Zucker</div>
+  <div class="micro-grid" id="micro-grid-macro"></div>
+  <div class="micro-section-title">Fette</div>
+  <div class="micro-grid" id="micro-grid-fat"></div>
+  <div class="micro-section-title">Mineralstoffe</div>
+  <div class="micro-grid" id="micro-grid-mineral"></div>
+  <div class="micro-section-title">Vitamine</div>
+  <div class="micro-grid" id="micro-grid-vitamin"></div>
 
   <!-- Meals -->
   <div id="meals-container"></div>
@@ -372,6 +382,17 @@
     <div class="form-group">
       <label class="form-label">Gewicht (kg)</label>
       <input class="form-input" id="settings-weight" type="number" min="20" max="300" step="0.1" placeholder="z.B. 75">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Geschlecht</label>
+      <div id="settings-gender" style="display:flex;gap:8px">
+        <button type="button" class="filter-pill" data-gender="m" onclick="setProfileGender(this)">Mann</button>
+        <button type="button" class="filter-pill" data-gender="f" onclick="setProfileGender(this)">Frau</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kalorienziel (kcal)</label>
+      <input class="form-input" id="settings-caloriegoal" type="number" min="1000" max="6000" step="10" placeholder="2500">
     </div>
     <div class="auth-error" id="settings-error"></div>
     <div class="modal-actions" style="justify-content:flex-start;align-items:center;gap:12px">
@@ -457,16 +478,76 @@
             <input class="form-input" id="fm-sugar" type="number" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">Vitamin A (µg) / 100g</label>
-            <input class="form-input" id="fm-vitamina" type="number" placeholder="0">
+            <label class="form-label">Gesättigte Fettsäuren (g) / 100g</label>
+            <input class="form-input" id="fm-satfat" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cholesterin (mg) / 100g</label>
+            <input class="form-input" id="fm-cholesterol" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Omega-3 EPA+DHA (mg) / 100g</label>
+            <input class="form-input" id="fm-omega3" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Natrium (mg) / 100g</label>
+            <input class="form-input" id="fm-sodium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kalium (mg) / 100g</label>
+            <input class="form-input" id="fm-potassium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Calcium (mg) / 100g</label>
+            <input class="form-input" id="fm-calcium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Magnesium (mg) / 100g</label>
+            <input class="form-input" id="fm-magnesium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phosphor (mg) / 100g</label>
+            <input class="form-input" id="fm-phosphorus" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Eisen (mg) / 100g</label>
+            <input class="form-input" id="fm-iron" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Zink (mg) / 100g</label>
+            <input class="form-input" id="fm-zinc" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mangan (mg) / 100g</label>
+            <input class="form-input" id="fm-manganese" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Selen (µg) / 100g</label>
+            <input class="form-input" id="fm-selenium" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kupfer (µg) / 100g</label>
+            <input class="form-input" id="fm-copper" type="number" placeholder="0">
           </div>
           <div class="form-group">
             <label class="form-label">Vitamin C (mg) / 100g</label>
             <input class="form-input" id="fm-vitaminc" type="number" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">Vitamin D (µg) / 100g</label>
-            <input class="form-input" id="fm-vitamind" type="number" placeholder="0">
+            <label class="form-label">Vitamin B1 (mg) / 100g</label>
+            <input class="form-input" id="fm-vitaminb1" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vitamin B2 (mg) / 100g</label>
+            <input class="form-input" id="fm-vitaminb2" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vitamin B3 (mg) / 100g</label>
+            <input class="form-input" id="fm-vitaminb3" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vitamin B6 (mg) / 100g</label>
+            <input class="form-input" id="fm-vitaminb6" type="number" placeholder="0">
           </div>
           <div class="form-group">
             <label class="form-label">Vitamin B12 (µg) / 100g</label>
@@ -477,28 +558,20 @@
             <input class="form-input" id="fm-folate" type="number" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">Calcium (mg) / 100g</label>
-            <input class="form-input" id="fm-calcium" type="number" placeholder="0">
+            <label class="form-label">Vitamin A (µg) / 100g</label>
+            <input class="form-input" id="fm-vitamina" type="number" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">Eisen (mg) / 100g</label>
-            <input class="form-input" id="fm-iron" type="number" placeholder="0">
+            <label class="form-label">Vitamin D (µg) / 100g</label>
+            <input class="form-input" id="fm-vitamind" type="number" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">Magnesium (mg) / 100g</label>
-            <input class="form-input" id="fm-magnesium" type="number" placeholder="0">
+            <label class="form-label">Vitamin E (mg) / 100g</label>
+            <input class="form-input" id="fm-vitamine" type="number" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">Kalium (mg) / 100g</label>
-            <input class="form-input" id="fm-potassium" type="number" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Zink (mg) / 100g</label>
-            <input class="form-input" id="fm-zinc" type="number" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Natrium (mg) / 100g</label>
-            <input class="form-input" id="fm-sodium" type="number" placeholder="0">
+            <label class="form-label">Vitamin K (µg) / 100g</label>
+            <input class="form-input" id="fm-vitamink" type="number" placeholder="0">
           </div>
         </div>
       </div>
@@ -679,6 +752,17 @@
     <div class="form-group">
       <label class="form-label">Gewicht (kg)</label>
       <input class="form-input" id="psm-weight" type="number" min="20" max="300" step="0.1" placeholder="z.B. 75">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Geschlecht</label>
+      <div id="psm-gender" style="display:flex;gap:8px">
+        <button type="button" class="filter-pill" data-gender="m" onclick="setProfileGender(this)">Mann</button>
+        <button type="button" class="filter-pill" data-gender="f" onclick="setProfileGender(this)">Frau</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kalorienziel (kcal)</label>
+      <input class="form-input" id="psm-caloriegoal" type="number" min="1000" max="6000" step="10" placeholder="2500">
     </div>
     <div class="auth-error" id="psm-error"></div>
     <div class="modal-actions" style="justify-content:stretch">

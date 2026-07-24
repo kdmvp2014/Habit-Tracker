@@ -39,6 +39,8 @@ alter table public.tracker_data add column if not exists birthdate date;
 alter table public.tracker_data add column if not exists height_cm numeric;
 alter table public.tracker_data add column if not exists weight_kg numeric;
 alter table public.tracker_data add column if not exists first_name text;
+alter table public.tracker_data add column if not exists gender text;
+alter table public.tracker_data add column if not exists calorie_goal numeric;
 
 alter table public.tracker_data      enable row level security;
 alter table public.tracker_nutrition enable row level security;

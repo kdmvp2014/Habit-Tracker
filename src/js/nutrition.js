@@ -9,26 +9,70 @@ export const MEALS = ['Frühstück','Mittagessen','Abendessen','Snacks'];
 // Goals (clean bulk)
 export const GOALS = { kcal: 3700, protein: 180, carbs: 400, fat: 110 };
 
-// Mikronährstoff-Richtwerte. Die meisten sind EU-Nährstoffbezugswerte (NRV) wie auf
-// Lebensmittelverpackungen; Ballaststoffe/Zucker haben keinen offiziellen NRV und sind
-// daher grobe, gängige Richtwerte (DGE-Empfehlung bzw. von der Zucker-Referenzmenge
-// abgeleitet). limitType 'min' = Ziel erreichen ist gut, 'max' = nicht überschreiten.
+// Mikronährstoff-Richtwerte nach DACH-Referenzwerten. value = Ziel/Untergrenze
+// (bei limitType 'max' zugleich die Obergrenze), ul = harte Obergrenze (null = keine
+// bekannte UL). value/ul können entweder eine Zahl (geschlechtsunabhängig) oder
+// {m,f} (geschlechtsabhängig) sein. limitType 'min' = Ziel erreichen ist gut (mit
+// optionaler UL nach oben), 'max' = reiner Obergrenzen-Nährstoff (Zucker, gesättigte
+// Fettsäuren, Cholesterin — "zu wenig" ist hier nicht schlecht).
 export const MICRO_GOALS = {
-  fiber:      { value: 30,   unit: 'g',  label: 'Ballaststoffe', limitType: 'min' },
-  sugar:      { value: 90,   unit: 'g',  label: 'Zucker',        limitType: 'max' },
-  vitaminA:   { value: 800,  unit: 'µg', label: 'Vitamin A',     limitType: 'min' },
-  vitaminC:   { value: 80,   unit: 'mg', label: 'Vitamin C',     limitType: 'min' },
-  vitaminD:   { value: 5,    unit: 'µg', label: 'Vitamin D',     limitType: 'min' },
-  vitaminB12: { value: 2.5,  unit: 'µg', label: 'Vitamin B12',   limitType: 'min' },
-  folate:     { value: 200,  unit: 'µg', label: 'Folsäure',      limitType: 'min' },
-  calcium:    { value: 800,  unit: 'mg', label: 'Calcium',       limitType: 'min' },
-  iron:       { value: 14,   unit: 'mg', label: 'Eisen',         limitType: 'min' },
-  magnesium:  { value: 375,  unit: 'mg', label: 'Magnesium',     limitType: 'min' },
-  potassium:  { value: 2000, unit: 'mg', label: 'Kalium',        limitType: 'min' },
-  zinc:       { value: 10,   unit: 'mg', label: 'Zink',          limitType: 'min' },
-  sodium:     { value: 2400, unit: 'mg', label: 'Natrium',       limitType: 'max' },
+  fiber:       { value:{m:38,f:25},   ul:70,   unit:'g',  label:'Ballaststoffe',          limitType:'min' },
+  sugar:       { value:50,            ul:50,   unit:'g',  label:'Zucker',                 limitType:'max' },
+  satfat:      { value:22,            ul:24,   unit:'g',  label:'Gesättigte Fettsäuren',  limitType:'max' },
+  cholesterol: { value:300,           ul:300,  unit:'mg', label:'Cholesterin',            limitType:'max' },
+  omega3:      { value:250,           ul:3000, unit:'mg', label:'Omega-3 (EPA+DHA)',      limitType:'min' },
+  sodium:      { value:1500,          ul:2300, unit:'mg', label:'Natrium',                limitType:'min' },
+  potassium:   { value:3500,          ul:4700, unit:'mg', label:'Kalium',                 limitType:'min' },
+  calcium:     { value:1000,          ul:2500, unit:'mg', label:'Calcium',                limitType:'min' },
+  magnesium:   { value:{m:400,f:310}, ul:350,  unit:'mg', label:'Magnesium',              limitType:'min' },
+  phosphorus:  { value:700,           ul:4000, unit:'mg', label:'Phosphor',               limitType:'min' },
+  iron:        { value:{m:8,f:18},    ul:45,   unit:'mg', label:'Eisen',                  limitType:'min' },
+  zinc:        { value:{m:11,f:8},    ul:40,   unit:'mg', label:'Zink',                   limitType:'min' },
+  manganese:   { value:{m:2.3,f:1.8}, ul:11,   unit:'mg', label:'Mangan',                 limitType:'min' },
+  selenium:    { value:55,            ul:400,  unit:'µg', label:'Selen',                  limitType:'min' },
+  copper:      { value:900,           ul:10000,unit:'µg', label:'Kupfer',                 limitType:'min' },
+  vitaminC:    { value:{m:90,f:75},   ul:2000, unit:'mg', label:'Vitamin C',              limitType:'min' },
+  vitaminB1:   { value:{m:1.2,f:1.1}, ul:null, unit:'mg', label:'Vitamin B1',             limitType:'min' },
+  vitaminB2:   { value:{m:1.3,f:1.1}, ul:null, unit:'mg', label:'Vitamin B2',             limitType:'min' },
+  vitaminB3:   { value:{m:16,f:14},   ul:35,   unit:'mg', label:'Vitamin B3',             limitType:'min' },
+  vitaminB6:   { value:1.3,           ul:100,  unit:'mg', label:'Vitamin B6',             limitType:'min' },
+  vitaminB12:  { value:2.4,           ul:null, unit:'µg', label:'Vitamin B12',            limitType:'min' },
+  folate:      { value:400,           ul:1000, unit:'µg', label:'Folsäure',               limitType:'min' },
+  vitaminA:    { value:{m:900,f:700}, ul:3000, unit:'µg', label:'Vitamin A',              limitType:'min' },
+  vitaminD:    { value:15,            ul:100,  unit:'µg', label:'Vitamin D',              limitType:'min' },
+  vitaminE:    { value:15,            ul:1000, unit:'mg', label:'Vitamin E',              limitType:'min' },
+  vitaminK:    { value:{m:120,f:90},  ul:null, unit:'µg', label:'Vitamin K',              limitType:'min' },
 };
-const MICRO_KEYS = Object.keys(MICRO_GOALS);
+export const MICRO_KEYS = Object.keys(MICRO_GOALS);
+
+// Kategorien fürs gruppierte Dashboard im Ernährungs-Tab (je ein eigenes Grid + Titel).
+const MICRO_CATEGORIES = [
+  { id:'macro',   title:'Ballaststoffe & Zucker', keys:['fiber','sugar'] },
+  { id:'fat',     title:'Fette',                  keys:['satfat','cholesterol','omega3'] },
+  { id:'mineral', title:'Mineralstoffe',           keys:['sodium','potassium','calcium','magnesium','phosphorus','iron','zinc','manganese','selenium','copper'] },
+  { id:'vitamin', title:'Vitamine',                keys:['vitaminC','vitaminB1','vitaminB2','vitaminB3','vitaminB6','vitaminB12','folate','vitaminA','vitaminD','vitaminE','vitaminK'] },
+];
+
+// value/ul können geschlechtsabhängig sein ({m,f}) oder ein einzelner Wert.
+function goalVal(v, gender){ return (v && typeof v==='object') ? (gender==='f'?v.f:v.m) : v; }
+
+// Ampel-Logik: bei 'max'-Nährstoffen zählt nur die Obergrenze (kein Malus für "zu wenig").
+// Bei 'min'-Nährstoffen zählt primär das Ziel, eine optionale UL deckelt nach oben.
+function microColor(val, goal, gender){
+  const ziel = goalVal(goal.value, gender);
+  const ul   = goal.ul!=null ? goalVal(goal.ul, gender) : null;
+  if(goal.limitType === 'max'){
+    if(val > ul*1.2) return 'var(--red)';
+    if(val > ul)     return 'var(--amber)';
+    if(val <= ul*0.9) return 'var(--green)';
+    return 'var(--amber)'; // 90–100% der Obergrenze
+  }
+  if(ul!=null && val > ul*1.2) return 'var(--red)';
+  if(ul!=null && val > ul)     return 'var(--amber)';
+  if(val >= ziel*0.8) return 'var(--green)';
+  if(val >= ziel*0.5) return 'var(--amber)';
+  return 'var(--red)';
+}
 
 export let ernDate = todayStr();
 let selectedFoodData = null;
@@ -107,7 +151,7 @@ export function renderErnaehrung(){
 
   // Macro cards
   const macros = [
-    {label:'Kalorien', val:Math.round(totKcal), unit:'kcal', goal:GOALS.kcal, color:'var(--accent)'},
+    {label:'Kalorien', val:Math.round(totKcal), unit:'kcal', goal:S.profile.calorieGoal || GOALS.kcal, color:'var(--accent)'},
     {label:'Protein',  val:Math.round(totProt), unit:'g',    goal:GOALS.protein, color:'var(--green)'},
     {label:'Carbs',    val:Math.round(totCarbs),unit:'g',    goal:GOALS.carbs,   color:'var(--amber)'},
     {label:'Fett',     val:Math.round(totFat),  unit:'g',    goal:GOALS.fat,     color:'var(--orange)'},
@@ -127,27 +171,33 @@ export function renderErnaehrung(){
     mg.appendChild(div);
   });
 
-  // Mikronährstoff-Karten: eigener Bereich, eigene Ziel-Semantik. Bei limitType 'min'
-  // (die meisten Vitamine/Mineralstoffe) ist Erreichen/Überschreiten gut → nie rot,
-  // grün sobald erreicht. Bei 'max' (Zucker, Natrium) gilt wie bei den Makros: rot,
-  // sobald überschritten.
-  const mig = document.getElementById('micro-grid');
-  mig.innerHTML = '';
-  MICRO_KEYS.forEach(k => {
-    const goal = MICRO_GOALS[k];
-    const val = Math.round(totMicro[k]*10)/10;
-    const pct = Math.min(100, Math.round(val/goal.value*100));
-    const over = goal.limitType==='max' && val > goal.value;
-    const reached = goal.limitType==='min' && val >= goal.value;
-    const color = over ? 'var(--red)' : (reached ? 'var(--green)' : 'var(--accent)');
-    const div = document.createElement('div');
-    div.className = 'macro-card';
-    div.innerHTML = `
-      <div class="macro-label">${goal.label}</div>
-      <div class="macro-val" style="color:${color}">${val}</div>
-      <div class="macro-goal">${goal.unit} · ${goal.limitType==='max'?'Max':'Ziel'}: ${goal.value}</div>
-      <div class="macro-bar-wrap"><div class="macro-bar" style="width:${pct}%;background:${color}"></div></div>`;
-    mig.appendChild(div);
+  // Mikronährstoff-Karten: nach Kategorie gruppiert (Makro-Rest/Fette/Mineralstoffe/
+  // Vitamine), je ein eigenes Grid. Zielwerte hängen vom Profil-Geschlecht ab.
+  const gender = S.profile.gender === 'f' ? 'f' : 'm';
+  MICRO_CATEGORIES.forEach(cat => {
+    const grid = document.getElementById('micro-grid-'+cat.id);
+    if(!grid) return;
+    grid.innerHTML = '';
+    cat.keys.forEach(k => {
+      const goal = MICRO_GOALS[k];
+      const val = Math.round(totMicro[k]*10)/10;
+      const ziel = goalVal(goal.value, gender);
+      const ul = goal.ul!=null ? goalVal(goal.ul, gender) : null;
+      const color = microColor(val, goal, gender);
+      const barRef = goal.limitType==='max' ? ul : ziel;
+      const pct = Math.min(100, Math.round(val/barRef*100));
+      const goalText = goal.limitType==='max'
+        ? `Max: ${ul}`
+        : `Ziel: ${ziel}${ul!=null ? ' · UL '+ul : ''}`;
+      const div = document.createElement('div');
+      div.className = 'macro-card';
+      div.innerHTML = `
+        <div class="macro-label">${goal.label}</div>
+        <div class="macro-val" style="color:${color}">${val}</div>
+        <div class="macro-goal">${goal.unit} · ${goalText}</div>
+        <div class="macro-bar-wrap"><div class="macro-bar" style="width:${pct}%;background:${color}"></div></div>`;
+      grid.appendChild(div);
+    });
   });
 
   // Meals
@@ -264,22 +314,37 @@ function renderCustomFoodResults(box, q){
 
 // USDA liefert pro Nährwert eine explizite unitName (MG/UG/G) mit — anders als bei
 // OpenFoodFacts lässt sich die Einheit hier also sicher statt geraten umrechnen.
-// Mehrere Kandidatennamen pro Nährstoff, da sich Feldnamen zwischen den Datensätzen
-// (Foundation/SR Legacy/FNDDS) leicht unterscheiden können.
+// Matching läuft über die numerische FDC-nutrientId statt über nutrientName-Strings,
+// da sich Namensvarianten zwischen den Datensätzen (Foundation/SR Legacy/FNDDS)
+// unterscheiden können, die nutrientId aber datensatzübergreifend stabil ist.
+// Omega-3 hat zwei IDs (EPA+DHA) — mapUsdaNutrients summiert sie.
 const USDA_MICRO_MAP = {
-  fiber:      { names:['Fiber, total dietary'],                                unit:'g'  },
-  sugar:      { names:['Sugars, total including NLEA','Sugars, total'],        unit:'g'  },
-  vitaminA:   { names:['Vitamin A, RAE'],                                      unit:'µg' },
-  vitaminC:   { names:['Vitamin C, total ascorbic acid'],                      unit:'mg' },
-  vitaminD:   { names:['Vitamin D (D2 + D3)'],                                 unit:'µg' },
-  vitaminB12: { names:['Vitamin B-12'],                                        unit:'µg' },
-  folate:     { names:['Folate, total'],                                       unit:'µg' },
-  calcium:    { names:['Calcium, Ca'],                                         unit:'mg' },
-  iron:       { names:['Iron, Fe'],                                            unit:'mg' },
-  magnesium:  { names:['Magnesium, Mg'],                                       unit:'mg' },
-  potassium:  { names:['Potassium, K'],                                        unit:'mg' },
-  zinc:       { names:['Zinc, Zn'],                                            unit:'mg' },
-  sodium:     { names:['Sodium, Na'],                                          unit:'mg' },
+  fiber:       { ids:[1079],      unit:'g'  },
+  sugar:       { ids:[2000],      unit:'g'  },
+  satfat:      { ids:[1258],      unit:'g'  },
+  cholesterol: { ids:[1253],      unit:'mg' },
+  omega3:      { ids:[1278,1272], unit:'mg' },
+  sodium:      { ids:[1093],      unit:'mg' },
+  potassium:   { ids:[1092],      unit:'mg' },
+  calcium:     { ids:[1087],      unit:'mg' },
+  magnesium:   { ids:[1090],      unit:'mg' },
+  phosphorus:  { ids:[1091],      unit:'mg' },
+  iron:        { ids:[1089],      unit:'mg' },
+  zinc:        { ids:[1095],      unit:'mg' },
+  manganese:   { ids:[1101],      unit:'mg' },
+  selenium:    { ids:[1103],      unit:'µg' },
+  copper:      { ids:[1098],      unit:'µg' },
+  vitaminC:    { ids:[1162],      unit:'mg' },
+  vitaminB1:   { ids:[1165],      unit:'mg' },
+  vitaminB2:   { ids:[1166],      unit:'mg' },
+  vitaminB3:   { ids:[1167],      unit:'mg' },
+  vitaminB6:   { ids:[1175],      unit:'mg' },
+  vitaminB12:  { ids:[1178],      unit:'µg' },
+  folate:      { ids:[1190],      unit:'µg' },
+  vitaminA:    { ids:[1106],      unit:'µg' },
+  vitaminD:    { ids:[1114],      unit:'µg' },
+  vitaminE:    { ids:[1109],      unit:'mg' },
+  vitaminK:    { ids:[1185],      unit:'µg' },
 };
 function usdaToGrams(value, unitName){
   switch((unitName||'').toUpperCase()){
@@ -298,8 +363,10 @@ function mapUsdaNutrients(foodNutrients){
   const out = {};
   MICRO_KEYS.forEach(k => {
     const cfg = USDA_MICRO_MAP[k];
-    const hit = cfg.names.map(nm => list.find(n => n.nutrientName===nm)).find(Boolean);
-    const grams = hit ? usdaToGrams(hit.value||0, hit.unitName) : 0;
+    const grams = cfg.ids.reduce((sum, id) => {
+      const hit = list.find(n => n.nutrientId === id);
+      return sum + (hit ? usdaToGrams(hit.value||0, hit.unitName) : 0);
+    }, 0);
     out[k+'100'] = Math.round(gramsToUnit(grams, cfg.unit) * 10)/10;
   });
   return out;
@@ -316,13 +383,15 @@ async function searchUsdaFood(q){
     if(!r.ok) return [];
     const d = await r.json();
     return (d.foods||[]).map(f => {
-      const get = name => (f.foodNutrients||[]).find(n => n.nutrientName===name && (name!=='Energy' || n.unitName==='KCAL'));
+      // nutrientId 1008 ist gezielt "Energy (kcal)" (getrennt von 1062 "Energy (kJ)"),
+      // daher reicht die ID allein ohne zusätzlichen unitName-Check.
+      const get = id => (f.foodNutrients||[]).find(n => n.nutrientId===id);
       return {
         name: f.description,
-        kcal100:    Math.round(get('Energy')?.value || 0),
-        protein100: Math.round((get('Protein')?.value||0)*10)/10,
-        carbs100:   Math.round((get('Carbohydrate, by difference')?.value||0)*10)/10,
-        fat100:     Math.round((get('Total lipid (fat)')?.value||0)*10)/10,
+        kcal100:    Math.round(get(1008)?.value || 0),
+        protein100: Math.round((get(1003)?.value||0)*10)/10,
+        carbs100:   Math.round((get(1005)?.value||0)*10)/10,
+        fat100:     Math.round((get(1004)?.value||0)*10)/10,
         ...mapUsdaNutrients(f.foodNutrients),
       };
     }).filter(f => f.kcal100 > 0);
@@ -333,19 +402,32 @@ async function searchUsdaFood(q){
 // mg/µg-Nährstoffen) — daher die Skalierungsfaktoren. sodium_100g fehlt bei vielen
 // Produkten; salt_100g (Salz = Natrium × 2,5) dient dann als Fallback.
 const OFF_MICRO_MAP = {
-  fiber:      { key:'fiber_100g',       scale:1    },
-  sugar:      { key:'sugars_100g',      scale:1    },
-  vitaminA:   { key:'vitamin-a_100g',   scale:1e6  },
-  vitaminC:   { key:'vitamin-c_100g',   scale:1000 },
-  vitaminD:   { key:'vitamin-d_100g',   scale:1e6  },
-  vitaminB12: { key:'vitamin-b12_100g', scale:1e6  },
-  folate:     { key:'vitamin-b9_100g',  scale:1e6  },
-  calcium:    { key:'calcium_100g',     scale:1000 },
-  iron:       { key:'iron_100g',        scale:1000 },
-  magnesium:  { key:'magnesium_100g',   scale:1000 },
-  potassium:  { key:'potassium_100g',   scale:1000 },
-  zinc:       { key:'zinc_100g',        scale:1000 },
-  sodium:     { key:'sodium_100g',      scale:1000 },
+  fiber:       { key:'fiber_100g',         scale:1    },
+  sugar:       { key:'sugars_100g',        scale:1    },
+  satfat:      { key:'saturated-fat_100g', scale:1    },
+  cholesterol: { key:'cholesterol_100g',   scale:1000 },
+  omega3:      { key:'omega-3-fat_100g',   scale:1000 },
+  sodium:      { key:'sodium_100g',        scale:1000 },
+  potassium:   { key:'potassium_100g',     scale:1000 },
+  calcium:     { key:'calcium_100g',       scale:1000 },
+  magnesium:   { key:'magnesium_100g',     scale:1000 },
+  phosphorus:  { key:'phosphorus_100g',    scale:1000 },
+  iron:        { key:'iron_100g',          scale:1000 },
+  zinc:        { key:'zinc_100g',          scale:1000 },
+  manganese:   { key:'manganese_100g',     scale:1000 },
+  selenium:    { key:'selenium_100g',      scale:1e6  },
+  copper:      { key:'copper_100g',        scale:1e6  },
+  vitaminC:    { key:'vitamin-c_100g',     scale:1000 },
+  vitaminB1:   { key:'vitamin-b1_100g',    scale:1000 },
+  vitaminB2:   { key:'vitamin-b2_100g',    scale:1000 },
+  vitaminB3:   { key:'vitamin-pp_100g',    scale:1000 }, // Niacin: OFF-Legacy-Taxonomie
+  vitaminB6:   { key:'vitamin-b6_100g',    scale:1000 },
+  vitaminB12:  { key:'vitamin-b12_100g',   scale:1e6  },
+  folate:      { key:'vitamin-b9_100g',    scale:1e6  },
+  vitaminA:    { key:'vitamin-a_100g',     scale:1e6  },
+  vitaminD:    { key:'vitamin-d_100g',     scale:1e6  },
+  vitaminE:    { key:'vitamin-e_100g',     scale:1000 },
+  vitaminK:    { key:'vitamin-k_100g',     scale:1e6  },
 };
 function mapOffNutriments(n){
   n = n || {};

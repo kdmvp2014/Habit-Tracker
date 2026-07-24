@@ -1,4 +1,5 @@
 import { loadErnDay, MEALS, GOALS, ernDate } from './nutrition.js';
+import { S } from './state.js';
 
 // ── KI TIPP ───────────────────────────────────────────────
 export async function openAiAdvice(){
@@ -23,8 +24,9 @@ export async function openAiAdvice(){
     });
   });
 
+  const kcalGoal = S.profile.calorieGoal || GOALS.kcal;
   const prompt = `Du bist ein Ernährungsberater für einen 18-jährigen Gymnasiasten (Jannick) der einen Clean Bulk macht.
-Tagesziele: ${GOALS.kcal} kcal, ${GOALS.protein}g Protein, ${GOALS.carbs}g Carbs, ${GOALS.fat}g Fett.
+Tagesziele: ${kcalGoal} kcal, ${GOALS.protein}g Protein, ${GOALS.carbs}g Carbs, ${GOALS.fat}g Fett.
 Bisher heute gegessen: ${allFoods.join(', ') || 'noch nichts'}.
 Aktuelle Makros: ${Math.round(totKcal)} kcal, ${Math.round(totProt)}g Protein, ${Math.round(totCarbs)}g Carbs, ${Math.round(totFat)}g Fett.
 Gib kurze, konkrete Empfehlungen (max 5 Sätze):

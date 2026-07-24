@@ -336,7 +336,8 @@ textarea.form-textarea{resize:vertical;min-height:65px}
 .ern-day-nav{display:flex;align-items:center;gap:12px;margin-bottom:22px}
 .ern-day-label{font-size:15px;font-weight:600;flex:1;text-align:center;letter-spacing:-.01em}
 .macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;max-width:700px}
-.micro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:24px;max-width:700px}
+.micro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px;max-width:700px}
+.micro-section-title{font-family:var(--mono);font-size:11px;color:var(--text1);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
 .macro-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
 .macro-label{font-family:var(--mono);font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
 .macro-val{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1}

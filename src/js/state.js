@@ -8,7 +8,7 @@ export let S = {
   todos:   [],  // {id,title,note,date,cat,prio,done}
   plans:   [],  // {id,name,days:[{exercises:[{name,sets,note,done}]}×7]}  days[0]=Mo
   customFoods: [], // {id,name,kcal100,protein100,carbs100,fat100, fiber100,sugar100,vitaminA100,vitaminC100,vitaminD100,vitaminB12100,folate100,calcium100,iron100,magnesium100,potassium100,zinc100,sodium100}
-  profile: { firstName:null, birthdate:null, heightCm:null, weightKg:null },
+  profile: { firstName:null, birthdate:null, heightCm:null, weightKg:null, gender:null, calorieGoal:2500 },
   activePlanId: null,
   viewMonth: null,
   editingHabitId: null,
@@ -35,14 +35,15 @@ export function load(){
   S.todos  = tryOld(nsKey('ht3_todos'), 'ht2_todos')  || [];
   S.plans  = JSON.parse(localStorage.getItem(nsKey('ht3_plans'))||'[]');
   S.customFoods = JSON.parse(localStorage.getItem(nsKey('ht3_customfoods'))||'[]');
-  S.profile = JSON.parse(localStorage.getItem(nsKey('ht3_profile'))||'null') || { firstName:null, birthdate:null, heightCm:null, weightKg:null };
+  S.profile = JSON.parse(localStorage.getItem(nsKey('ht3_profile'))||'null') || { firstName:null, birthdate:null, heightCm:null, weightKg:null, gender:null, calorieGoal:2500 };
   S.activePlanId = localStorage.getItem(nsKey('ht3_activePlan'))||null;
   if(!S.activePlanId && S.plans.length) S.activePlanId = S.plans[0].id;
 }
 
-// Alle vier Profil-Felder müssen gesetzt sein, sonst gilt das Setup als nicht abgeschlossen
+// Diese fünf Profil-Felder müssen gesetzt sein, sonst gilt das Setup als nicht abgeschlossen.
+// Kalorienziel hat einen sinnvollen Default (2500) und ist bewusst nicht Teil des Gates.
 export function hasProfile(){
-  return !!(S.profile && S.profile.firstName && S.profile.birthdate && S.profile.heightCm && S.profile.weightKg);
+  return !!(S.profile && S.profile.firstName && S.profile.birthdate && S.profile.heightCm && S.profile.weightKg && S.profile.gender);
 }
 
 // ── SUPABASE AUTH + SYNC ──────────────────────────────────
@@ -69,6 +70,8 @@ export async function syncToSupabase(){
       birthdate:    S.profile.birthdate||null,
       height_cm:    S.profile.heightCm||null,
       weight_kg:    S.profile.weightKg||null,
+      gender:       S.profile.gender||null,
+      calorie_goal: S.profile.calorieGoal||null,
       updated_at:   new Date().toISOString()
     };
     const { error } = await sb.from('tracker_data').upsert(payload, { onConflict: 'user_id' });
@@ -91,8 +94,8 @@ export async function loadFromSupabase(){
     if(row.plans)         S.plans      = JSON.parse(row.plans);
     if(row.custom_foods) S.customFoods = JSON.parse(row.custom_foods);
     if(row.active_plan)  S.activePlanId= row.active_plan;
-    if(row.first_name || row.birthdate || row.height_cm || row.weight_kg){
-      S.profile = { firstName: row.first_name||null, birthdate: row.birthdate||null, heightCm: row.height_cm||null, weightKg: row.weight_kg||null };
+    if(row.first_name || row.birthdate || row.height_cm || row.weight_kg || row.gender || row.calorie_goal){
+      S.profile = { firstName: row.first_name||null, birthdate: row.birthdate||null, heightCm: row.height_cm||null, weightKg: row.weight_kg||null, gender: row.gender||null, calorieGoal: row.calorie_goal||2500 };
     }
     save(); // auch in localStorage spiegeln
     return 'ok';
