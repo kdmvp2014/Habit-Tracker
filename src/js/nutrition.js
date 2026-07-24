@@ -382,6 +382,7 @@ async function searchUsdaFood(q){
     const r = await fetch(url);
     if(!r.ok) return [];
     const d = await r.json();
+    const ql = q.trim().toLowerCase();
     return (d.foods||[]).map(f => {
       // nutrientId 1008 ist gezielt "Energy (kcal)" (getrennt von 1062 "Energy (kJ)"),
       // daher reicht die ID allein ohne zusätzlichen unitName-Check.
@@ -394,7 +395,16 @@ async function searchUsdaFood(q){
         fat100:     Math.round((get(1004)?.value||0)*10)/10,
         ...mapUsdaNutrients(f.foodNutrients),
       };
-    }).filter(f => f.kcal100 > 0);
+    }).filter(f => f.kcal100 > 0)
+      // Generischer Treffer ("Apple, raw") soll vor Nicht-Kern-Treffern ("Apple juice")
+      // stehen — exakte Übereinstimmung zuerst, dann Präfix-Treffer, Rest unverändert.
+      .sort((a,b) => {
+        const an = a.name.toLowerCase(), bn = b.name.toLowerCase();
+        const aEx = an===ql?0:1, bEx = bn===ql?0:1;
+        if(aEx!==bEx) return aEx-bEx;
+        const aSw = an.startsWith(ql)?0:1, bSw = bn.startsWith(ql)?0:1;
+        return aSw-bSw;
+      });
   } catch(e){ return []; }
 }
 
@@ -475,14 +485,21 @@ export function searchFood(q){
     };
     const [products, usdaFoods] = await Promise.all([fetchOff(), searchUsdaFood(q)]);
     document.getElementById('search-loading')?.remove();
-    usdaFoods.forEach(f => {
-      const item = document.createElement('div');
-      item.className = 'search-result-item';
-      item.innerHTML = `<div class="search-result-name">${f.name} · <span style="color:var(--text2)">USDA, generisch</span></div>
-        <div class="search-result-meta">${f.kcal100} kcal · ${f.protein100}g P · ${f.carbs100}g C · ${f.fat100}g F (pro 100g)</div>`;
-      item.onclick = () => selectFood(f);
-      box.appendChild(item);
-    });
+    // USDA-Treffer haben immer höchste Priorität und werden vor den bereits gerenderten
+    // eigenen Lebensmitteln eingefügt (statt ans Ende angehängt) — Endreihenfolge:
+    // USDA → Eigene Lebensmittel → OpenFoodFacts.
+    if(usdaFoods.length){
+      const frag = document.createDocumentFragment();
+      usdaFoods.forEach(f => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `<div class="search-result-name">${f.name} · <span style="color:var(--text2)">USDA, generisch</span></div>
+          <div class="search-result-meta">${f.kcal100} kcal · ${f.protein100}g P · ${f.carbs100}g C · ${f.fat100}g F (pro 100g)</div>`;
+        item.onclick = () => selectFood(f);
+        frag.appendChild(item);
+      });
+      box.insertBefore(frag, box.firstChild);
+    }
     if(products === null){
       const err = document.createElement('div');
       err.style.cssText = 'padding:12px;font-size:12px;color:var(--red)';
