@@ -94,8 +94,20 @@ export async function loadFromSupabase(){
     if(row.plans)         S.plans      = JSON.parse(row.plans);
     if(row.custom_foods) S.customFoods = JSON.parse(row.custom_foods);
     if(row.active_plan)  S.activePlanId= row.active_plan;
+    // Pro Feld mergen statt blind ersetzen: fehlt ein Feld in der Cloud-Zeile (z.B. weil
+    // eine neu hinzugekommene Spalte in der echten Supabase-DB noch nicht existiert oder
+    // der letzte Sync noch nicht durchgelaufen ist), soll das NICHT den frischeren, bereits
+    // lokal gespeicherten Wert überschreiben — sonst "vergisst" die App gerade erst
+    // eingegebene Profildaten bei jedem Reload wieder.
     if(row.first_name || row.birthdate || row.height_cm || row.weight_kg || row.gender || row.calorie_goal){
-      S.profile = { firstName: row.first_name||null, birthdate: row.birthdate||null, heightCm: row.height_cm||null, weightKg: row.weight_kg||null, gender: row.gender||null, calorieGoal: row.calorie_goal||2500 };
+      S.profile = {
+        firstName:   row.first_name  ?? S.profile.firstName,
+        birthdate:   row.birthdate   ?? S.profile.birthdate,
+        heightCm:    row.height_cm   ?? S.profile.heightCm,
+        weightKg:    row.weight_kg   ?? S.profile.weightKg,
+        gender:      row.gender      ?? S.profile.gender,
+        calorieGoal: row.calorie_goal ?? S.profile.calorieGoal,
+      };
     }
     save(); // auch in localStorage spiegeln
     return 'ok';
