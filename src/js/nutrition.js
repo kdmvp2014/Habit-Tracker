@@ -375,10 +375,15 @@ function mapUsdaNutrients(foodNutrients){
 // USDA FoodData Central: kuratierte, nicht popularitätsbasierte Datensätze speziell für
 // generische/rohe Lebensmittel (z.B. "Banana, raw") — ergänzt OpenFoodFacts, das für sowas
 // als Barcode-Scan-Datenbank strukturell schwach ist. Englischsprachig, siehe USDA_API_KEY.
+// Größerer Kandidaten-Pool (20 statt früher 4): Survey (FNDDS) enthält sehr viele
+// "Als-verzehrt"-Mischgerichte, die den Suchbegriff nur als Zutat im Namen tragen
+// (z.B. "Egg roll", "Egg drop soup" bei der Suche nach "egg") — bei nur 4 Treffern
+// kann der schlichte generische Eintrag ("Egg, whole, raw, fresh") dadurch komplett
+// verdrängt werden. Angezeigt werden nach der Relevanz-Sortierung nur die Top 5.
 async function searchUsdaFood(q){
   if(!USDA_API_KEY) return [];
   try {
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(q)}&api_key=${USDA_API_KEY}&pageSize=4&dataType=${encodeURIComponent('Foundation,SR Legacy,Survey (FNDDS)')}`;
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(q)}&api_key=${USDA_API_KEY}&pageSize=20&dataType=${encodeURIComponent('Foundation,SR Legacy,Survey (FNDDS)')}`;
     const r = await fetch(url);
     if(!r.ok) return [];
     const d = await r.json();
@@ -404,7 +409,8 @@ async function searchUsdaFood(q){
         if(aEx!==bEx) return aEx-bEx;
         const aSw = an.startsWith(ql)?0:1, bSw = bn.startsWith(ql)?0:1;
         return aSw-bSw;
-      });
+      })
+      .slice(0, 5);
   } catch(e){ return []; }
 }
 
